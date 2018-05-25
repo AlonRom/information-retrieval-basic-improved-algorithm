@@ -1,0 +1,4 @@
+queryFile=./files/queries.txt
+docsFile=./files/docs.txt
+outputFile=./files/output.txt
+retrievalAlgorithm=basic
