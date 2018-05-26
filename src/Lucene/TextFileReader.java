@@ -32,14 +32,18 @@ public class TextFileReader {
 	{
 		List<String> lines = null;
 		List<String> parameters = new ArrayList<>();
-		try {
+		try 
+		{
 			lines = Files.readAllLines(Paths.get(inputFile));
-		} catch (IOException e) {
+		} 
+		catch (IOException e) 
+		{
 			e.printStackTrace();
 		}
 		
 		//get parameters values
-        for (String line : lines) {
+        for (String line : lines) 
+        {
         	parameters.add(line.split("=")[1]);	      
         }
 
@@ -52,7 +56,7 @@ public class TextFileReader {
 	}
 	
 	
-	public static List<String> GetStopWords(List<String> collection, int numberOfWords) 
+	public static List<String> GetStopWords(List<Document> collection, int numberOfWords) 
 	{	
 		return null;
 	}

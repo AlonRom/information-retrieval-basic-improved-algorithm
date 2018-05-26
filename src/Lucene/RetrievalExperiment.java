@@ -34,7 +34,7 @@ public class RetrievalExperiment {
 	private static String outputFilePath;
 	
 	static List<String> inputParameters;
-	static List<String> collection;
+	static List<Document> collection;
 	static List<String> stopWords;
 	static Map<Integer, List<String>> queries;
 
@@ -58,7 +58,6 @@ public class RetrievalExperiment {
 		queries = TextFileReader.ReadFileQueries(queryFilePath);
 			
 		
-		//dsfdfdsfds   a
 		/*
 		StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
 		String querystr = args.length > 0 ? args[0] : "lucene";
