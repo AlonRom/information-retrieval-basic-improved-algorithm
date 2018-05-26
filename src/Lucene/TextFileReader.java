@@ -28,19 +28,33 @@ public class TextFileReader {
         return parameters;
 	}
 	
+	public static List<String> CreateCollection(String inputFile) 
+	{		
+		return null;
+	}
+	
+	
+	public static List<String> GetStopWords(List<String> collection, int numberOfWords) 
+	{	
+		return null;
+	}
+
 	public static Map<Integer, List<String>> ReadFileQueries(String inputFile) 
 	{
 		String content = null;
 		Map<Integer, List<String>> queries = new HashMap<Integer, List<String>>();
-		try {
+		try 
+		{
 			content = new String(Files.readAllBytes(Paths.get(inputFile)));
-		} catch (IOException e) {
+		}
+		catch (IOException e) 
+		{
 			e.printStackTrace();
 		}
 	
 		String[] parts = content.split("\\*");
-		for (String part : parts) {
-			
+		for (String part : parts) 
+		{		
 			//get query Id
 			Integer queryId = GetNumberFromString(part);
 			
@@ -48,11 +62,9 @@ public class TextFileReader {
 			List<String> queryTerms = GetQueryTerms(part);
 			
 			if(queryId > 0)
-				queries.put(queryId, queryTerms);			
-			
+				queries.put(queryId, queryTerms);					
 		}
-		return queries;
-		
+		return queries;		
 	}
 
 	private static Integer GetNumberFromString(String str) 
@@ -93,6 +105,4 @@ public class TextFileReader {
 	{
 		return true;
 	}
-
-
 }

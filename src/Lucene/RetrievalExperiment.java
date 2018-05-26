@@ -34,6 +34,8 @@ public class RetrievalExperiment {
 	private static String outputFilePath;
 	
 	static List<String> inputParameters;
+	static List<String> collection;
+	static List<String> stopWords;
 	static Map<Integer, List<String>> queries;
 
 	public static void main(String[] args) throws IOException, ParseException {
@@ -46,9 +48,17 @@ public class RetrievalExperiment {
 		outputFilePath = inputParameters.get(2);
 		retrievalAlgorithmMode = inputParameters.get(3);
 			
+		//create a collection from documents 
+		collection = TextFileReader.CreateCollection(docsFilePath);
+	
+		//get 20 words that appear most frequently in the collection 
+		stopWords = TextFileReader.GetStopWords(collection, 20);
+		
 		//get queries from the query file
 		queries = TextFileReader.ReadFileQueries(queryFilePath);
 			
+		
+		
 		/*
 		StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
 		String querystr = args.length > 0 ? args[0] : "lucene";
