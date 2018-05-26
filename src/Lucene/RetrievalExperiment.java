@@ -58,7 +58,7 @@ public class RetrievalExperiment {
 		queries = TextFileReader.ReadFileQueries(queryFilePath);
 			
 		
-		   
+		//dsfdfdsfds   
 		/*
 		StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
 		String querystr = args.length > 0 ? args[0] : "lucene";
