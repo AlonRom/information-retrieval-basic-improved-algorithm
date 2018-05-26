@@ -6,8 +6,8 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/CodeValue/eclipse-workspace/HW3/bin/Jars/lucene-core-7.3.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/CodeValue/eclipse-workspace/HW3/bin/Jars/lucene-demo-7.3.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/CodeValue/eclipse-workspace/HW3/bin/Jars/lucene-queryparser-7.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core-7.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-demo-7.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-queryparser-7.3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
