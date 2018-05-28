@@ -4,8 +4,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchEvent.Modifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +28,10 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.misc.HighFreqTerms;
+import org.apache.lucene.misc.TermStats;
 
 public class RetrievalExperiment {
 
@@ -48,65 +55,42 @@ public class RetrievalExperiment {
 		outputFilePath = inputParameters.get(2);
 		retrievalAlgorithmMode = inputParameters.get(3);
 			
-		//create a collection from documents 
-		collection = TextFileReader.CreateCollection(docsFilePath);
-	
-		//get 20 words that appear most frequently in the collection 
-		stopWords = TextFileReader.GetStopWords(collection, 20);
-		
-		//get queries from the query file
-		queries = TextFileReader.ReadFileQueries(queryFilePath);
-			
-		
-		/*
+		//Create new index
 		StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
-		String querystr = args.length > 0 ? args[0] : "lucene";
-		Query q = new QueryParser("title", standardAnalyzer).parse(querystr);
-		*/
-		
-		/*
-		
-		// New index
-		StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
-		
-		String outputDir = "C:\\priya\\workspace\\JCG\\src\\com\\javacodegeeks\\lucene\\output";
-		File file = new File(inputFilePath);
-
-		Directory directory = FSDirectory.open(Paths.get(outputDir));
+		Directory directory = FSDirectory.open(Paths.get(outputFilePath.replaceFirst("[.][^.]+$", "")));
 		IndexWriterConfig config = new IndexWriterConfig(standardAnalyzer);
 		config.setOpenMode(OpenMode.CREATE);
-		// Create a writer
+		
+		//Create a writer
 		IndexWriter writer = new IndexWriter(directory, config);
 
-		Document document = new Document();
-		try (BufferedReader br = new BufferedReader(new FileReader(inputFilePath))) {
-
-			document.add(new TextField("content", br));
-			writer.addDocument(document);
-			writer.close();
-
-		} catch (IOException e) {
+		//Create a new document
+		try 
+		{
+			Document document = LuceneHelper.CreateDocument(writer, docsFilePath);
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		
+		//Open index reader
+		IndexReader reader = DirectoryReader.open(directory);
+		
+		//get 20 words that appear most frequently in the collection 	
+		TermStats[] states = null;
+	    try 
+	    {
+	    	states = LuceneHelper.GetMostFrequentWords(reader);
+		} 
+	    catch (Exception e) 
+	    {
 			e.printStackTrace();
 		}
 
-		// Now let's try to search for Hello
-		IndexReader reader = DirectoryReader.open(directory);
-		IndexSearcher searcher = new IndexSearcher(reader);
-		QueryParser parser = new QueryParser("content", standardAnalyzer);
-		Query query = parser.parse("Hello");
-		TopDocs results = searcher.search(query, 5);
-		System.out.println("Hits for Hello -->" + results.totalHits);
-
-		// case insensitive search
-		query = parser.parse("hello");
-		results = searcher.search(query, 5);
-		System.out.println("Hits for hello -->" + results.totalHits);
-
-		// search for a value not indexed
-		query = parser.parse("Hi there");
-		results = searcher.search(query, 5);
-		System.out.println("Hits for Hi there -->" + results.totalHits);
-		*/
-	}
+		//get queries from the query file
+		queries = TextFileReader.ReadFileQueries(queryFilePath);
+			
+	
+	}		
 }
-// Dor's first commits

@@ -50,17 +50,6 @@ public class TextFileReader {
         return parameters;
 	}
 	
-	public static List<Document> CreateCollection(String inputFile) 
-	{		
-		return null;
-	}
-	
-	
-	public static List<String> GetStopWords(List<Document> collection, int numberOfWords) 
-	{	
-		return null;
-	}
-
 	public static Map<Integer, List<String>> ReadFileQueries(String inputFile) 
 	{
 		String content = null;
