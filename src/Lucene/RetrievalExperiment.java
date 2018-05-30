@@ -92,7 +92,9 @@ public class RetrievalExperiment {
 			e.printStackTrace();
 		}
 
+
 		//Create a writer that indexes each document separately!
+		//StandardAnalyzer standardAnalyzer_docs = new StandardAnalyzer();
 		//IndexWriter writer2=new IndexWriter(directory,config);
 
 		//Split the big document into it's sub-documents and index each of them
