@@ -47,6 +47,8 @@ public class RetrievalExperiment {
 
 	public static void main(String[] args) throws IOException, ParseException {
 		
+		//test comment
+		
 		//get parameters file data
 		String inputFilePath = "./files/parameters.txt";
 		inputParameters= TextFileReader.ReadFileParametres(inputFilePath);
