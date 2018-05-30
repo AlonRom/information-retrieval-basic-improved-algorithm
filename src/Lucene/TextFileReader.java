@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -76,6 +81,49 @@ public class TextFileReader {
 				queries.put(queryId, queryTerms);					
 		}
 		return queries;		
+	}
+
+	public static void SplitDocuments(String inputFile,String outPath)
+	{
+		String content = null;
+		Map<Integer, Document> documents = new HashMap<Integer, Document>();
+		try
+		{
+			content = new String(Files.readAllBytes(Paths.get(inputFile)));
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		String[] parts = content.split("\\*TEXT");
+		String outPathID=null;
+		new File(outPath).mkdirs();
+		for (String part : parts)
+		{
+			if (part.equals(""))
+				continue;
+			//get doc Id
+			Matcher matcher = Pattern.compile("\\d+").matcher(part);
+			matcher.find();
+			Integer docId = Integer.valueOf(matcher.group());
+			outPathID=outPath.concat(Integer.toString(docId));
+			outPathID=outPathID.concat(Constants.PARSED_DOCS_FILE_TYPE);
+
+			//save the rest of the content to file
+			try {
+				File file = new File(outPathID);
+				file.createNewFile();
+				BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outPathID));
+				fileWriter.write(part);
+				fileWriter.close();
+			}
+			catch (Exception e){
+				e.printStackTrace();
+			}
+
+		}
+
 	}
 
 	private static Integer GetNumberFromString(String str) 

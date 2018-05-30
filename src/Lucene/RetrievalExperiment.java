@@ -61,8 +61,10 @@ public class RetrievalExperiment {
 		IndexWriterConfig config = new IndexWriterConfig(standardAnalyzer);
 		config.setOpenMode(OpenMode.CREATE);
 		
-		//Create a writer
+		//Create a writer for finding the stop words
 		IndexWriter writer = new IndexWriter(directory, config);
+
+
 
 		//Create a new document
 		try 
@@ -87,6 +89,34 @@ public class RetrievalExperiment {
 	    {
 			e.printStackTrace();
 		}
+
+		//Create a writer that indexes each document separately
+		//IndexWriter writer2=new IndexWriter(directory,config);
+
+		//Split the big document into it's sub-documents and index each of them
+		try
+		{
+			//Split the document into it's sub documents
+			TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
+
+			//Gets all the files in the dictionary
+			File[] files = new File(Constants.PARSED_DOCS_PATH).listFiles();
+			for (File file : files) {
+				if(!file.isDirectory()
+						&& !file.isHidden()
+						&& file.exists()
+						&& file.canRead()
+						) {
+					Document document = LuceneHelper.CreateDocument(writer, file.getCanonicalPath());
+				}
+			}
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
 
 		//get queries from the query file
 		queries = TextFileReader.ReadFileQueries(queryFilePath);
