@@ -107,7 +107,7 @@ public class RetrievalExperiment {
 						&& file.exists()
 						&& file.canRead()
 						) {
-					Document document = LuceneHelper.CreateDocument(writer, file.getCanonicalPath());
+					//Document document = LuceneHelper.CreateDocument(writer, file.getCanonicalPath());
 				}
 			}
 
