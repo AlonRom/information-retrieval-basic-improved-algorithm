@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.TextField;
@@ -46,9 +47,7 @@ public class RetrievalExperiment {
 	static Map<Integer, List<String>> queries;
 
 	public static void main(String[] args) throws IOException, ParseException {
-		
-		//test comment
-		
+
 		//get parameters file data
 		String inputFilePath = "./files/parameters.txt";
 		inputParameters= TextFileReader.ReadFileParametres(inputFilePath);
@@ -59,19 +58,17 @@ public class RetrievalExperiment {
 			
 		//Create new index
 		StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
-		Directory directory = FSDirectory.open(Paths.get(outputFilePath.replaceFirst("[.][^.]+$", "")));
-		IndexWriterConfig config = new IndexWriterConfig(standardAnalyzer);
-		config.setOpenMode(OpenMode.CREATE);
+		Directory docsFileIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCS_FILE_INDEX_PATH));
+		IndexWriterConfig docsFileConfig = new IndexWriterConfig(standardAnalyzer);
+		docsFileConfig.setOpenMode(OpenMode.CREATE);
 		
 		//Create a writer for finding the stop words
-		IndexWriter writer = new IndexWriter(directory, config);
-
-
+		IndexWriter docFileWriter = new IndexWriter(docsFileIndexdirectory, docsFileConfig);
 
 		//Create a new document
 		try 
 		{
-			Document document = LuceneHelper.CreateDocument(writer, docsFilePath);
+			Document document = LuceneHelper.CreateDocument(docFileWriter, docsFilePath);
 		} 
 		catch (Exception e) 
 		{
@@ -79,13 +76,13 @@ public class RetrievalExperiment {
 		}
 		
 		//Open index reader
-		IndexReader reader = DirectoryReader.open(directory);
+		IndexReader reader = DirectoryReader.open(docsFileIndexdirectory);
 		
 		//get 20 words that appear most frequently in the collection 	
-		TermStats[] states = null;
+		CharArraySet stopWordsSet = null;
 	    try 
 	    {
-	    	states = LuceneHelper.GetMostFrequentWords(reader);
+	    	stopWordsSet = LuceneHelper.GetMostFrequentWords(reader);
 		} 
 	    catch (Exception e) 
 	    {
@@ -93,9 +90,14 @@ public class RetrievalExperiment {
 		}
 
 
-		//Create a writer that indexes each document separately!
-		//StandardAnalyzer standardAnalyzer_docs = new StandardAnalyzer();
-		//IndexWriter writer2=new IndexWriter(directory,config);
+		//create a writer that indexes each document separately!    
+		StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
+		Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
+		IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
+		documentsConfig.setOpenMode(OpenMode.CREATE);
+		
+		//Create a writer for finding the stop words
+		IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
 
 		//Split the big document into it's sub-documents and index each of them
 		try

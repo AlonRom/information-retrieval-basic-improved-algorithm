@@ -3,7 +3,10 @@ package Lucene;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
+import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexReader;
@@ -29,8 +32,11 @@ public class LuceneHelper
 		return document;
 	}
 	
-	public static TermStats[] GetMostFrequentWords(IndexReader reader) throws Exception 
+	public static CharArraySet GetMostFrequentWords(IndexReader reader) throws Exception 
 	{
-		return HighFreqTerms.getHighFreqTerms(reader, Constants.STOP_WORDS_COUNT, Constants.CONTENT, new HighFreqTerms.TotalTermFreqComparator());
+		TermStats[] states = HighFreqTerms.getHighFreqTerms(reader, Constants.STOP_WORDS_COUNT, Constants.CONTENT, new HighFreqTerms.TotalTermFreqComparator());
+		List<TermStats> stopWordsCollection = Arrays.asList(states);
+		return new CharArraySet(stopWordsCollection, true);
 	}
+
 }
