@@ -87,14 +87,14 @@ public class LuceneHelper
 		return new CharArraySet(stopWordsCollection, true);
 	}
 
-	public static void SearchIndexForQueries(Map<Integer, String> queries) 
+	public static void SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet)
 	{
 		for (Map.Entry<Integer, String> entry : queries.entrySet())
 		{
 		    try 
 		    {
 				System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
-				SearchQuery(entry.getValue());    
+				SearchQuery(entry.getValue(),stopWordSet );
 			} 
 		    catch (Exception e) {
 				e.printStackTrace();
@@ -103,12 +103,12 @@ public class LuceneHelper
 		}
 	}
 	
-	public static void SearchQuery(String searchQuery) throws IOException, ParseException
+	public static void SearchQuery(String searchQuery, CharArraySet stopWordSet) throws IOException, ParseException
 	{
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 		
-		QueryParser queryParser = new QueryParser(Constants.CONTENT, new StandardAnalyzer());
+		QueryParser queryParser = new QueryParser(Constants.CONTENT, new StandardAnalyzer(stopWordSet));
 		Query query = queryParser.parse(searchQuery);
 		TopDocs results = indexSearcher.search(query, 1000);
 		ScoreDoc[] hits = results.scoreDocs;

@@ -109,7 +109,7 @@ public class RetrievalExperiment {
 		queries = TextFileReader.ReadFileQueries(queryFilePath, stopWords);
 
 		//search queries
-		LuceneHelper.SearchIndexForQueries(queries);
+		LuceneHelper.SearchIndexForQueries(queries,stopWordsSet);
 				
 	}		
 }
