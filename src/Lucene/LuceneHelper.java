@@ -106,7 +106,7 @@ public class LuceneHelper
 						break;
 					}
 				}
-				Match[entry.getKey()]=match;
+				Match[entry.getKey()-1]=match;
 			} 
 		    catch (Exception e) {
 				e.printStackTrace();

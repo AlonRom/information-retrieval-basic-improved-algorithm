@@ -54,7 +54,8 @@ public class TextFileReader {
 	
 		String[] parts = content.split("\\*");
 		for (String part : parts) 
-		{	
+		{	if (part.equals(""))
+				continue;
 			//get query Id
 			Integer queryId = GetNumberFromString(part);
 			
@@ -116,11 +117,14 @@ public class TextFileReader {
 
 	private static Integer GetNumberFromString(String str) 
 	{
-		str = str.replaceAll("\\D+","");
-		if(str.matches("-?\\d+(\\.\\d+)?"))
-			return Integer.parseInt(str.replaceAll("\\D+",""));
-		
-		return -1;
+		//str = str.replaceAll("\\D+","");
+		Matcher matcher = Pattern.compile("\\d+").matcher(str);
+		matcher.find();
+		return Integer.valueOf(matcher.group());
+//		if(str.matches("-?\\d+(\\.\\d+)?"))
+//			return Integer.parseInt(str.replaceAll("\\D+",""));
+//
+//		return -1;
 	}
 	
 	private static String GetQueryTerms(String str, List<String> stopWords) 
