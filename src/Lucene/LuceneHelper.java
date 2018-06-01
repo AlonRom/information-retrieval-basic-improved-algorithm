@@ -1,8 +1,11 @@
 package Lucene;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -21,8 +24,6 @@ import org.apache.lucene.misc.TermStats;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
-import org.apache.lucene.search.similarities.Similarity;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -85,39 +86,50 @@ public class LuceneHelper
 		return new CharArraySet(stopWordsCollection, true);
 	}
 
-	public static void SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet)
-	{
-		String Match[]=new String[queries.size()];
+	public static void SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath) throws FileNotFoundException, UnsupportedEncodingException
+	{  
+		String matches[]=new String[queries.size()];
 		for (Map.Entry<Integer, String> entry : queries.entrySet())
 		{
 		    try 
 		    {
-				System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
+		    	System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
 				ScoreDoc[] hits=SearchQuery(entry.getValue(),stopWordSet);
 
 				String match=entry.getKey().toString().concat("  ");
-				for (ScoreDoc hit: hits){
-					if (hit.score>=Constants.SCORE_THRESHOLD){
-						match=match.concat(new Integer(hit.doc+1).toString());
+				for (ScoreDoc hit: hits)
+				{
+					if (hit.score>=Constants.SCORE_THRESHOLD)
+					{
+						match=match.concat(Integer.toString(hit.doc+1));
 						match=match.concat(" ");
-
 					}
-					else{
+					else
+					{
 						break;
 					}
 				}
-				Match[entry.getKey()-1]=match;
+				matches[entry.getKey()-1]=match;
 			} 
-		    catch (Exception e) {
+		    catch (Exception e) 
+		    {
 				e.printStackTrace();
-			}
-			for (String match:Match){
-		    	System.out.println("Query " + match);
-			}
-		  
+			}	  
 		}
+	    PrintMathces(outputFilePath, matches);
 	}
 	
+	private static void PrintMathces(String outputFilePath, String[] matches) throws FileNotFoundException, UnsupportedEncodingException 
+	{
+    	PrintWriter writer = new PrintWriter(outputFilePath, "UTF-8");
+		for (String match:matches)
+		{
+			writer.println(match);
+			writer.println();
+		}	
+		writer.close();
+	}
+
 	public static ScoreDoc[] SearchQuery(String searchQuery, CharArraySet stopWordSet) throws IOException, ParseException
 	{
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
