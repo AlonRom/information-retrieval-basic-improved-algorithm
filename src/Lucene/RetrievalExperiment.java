@@ -1,28 +1,13 @@
 package Lucene;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchEvent.Modifier;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -42,9 +27,8 @@ public class RetrievalExperiment {
 	private static String outputFilePath;
 	
 	static List<String> inputParameters;
-	static List<Document> collection;
-	static List<String> stopWords;
-	static Map<Integer, List<String>> queries;
+	static List<String> stopWords = new ArrayList<String>();
+	static Map<Integer, String> queries;
 
 	public static void main(String[] args) throws IOException, ParseException {
 
@@ -56,19 +40,20 @@ public class RetrievalExperiment {
 		outputFilePath = inputParameters.get(2);
 		retrievalAlgorithmMode = inputParameters.get(3);
 			
-		//Create new index
+		//create new index
 		StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
 		Directory docsFileIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCS_FILE_INDEX_PATH));
 		IndexWriterConfig docsFileConfig = new IndexWriterConfig(standardAnalyzer);
 		docsFileConfig.setOpenMode(OpenMode.CREATE);
 		
-		//Create a writer for finding the stop words
+		//create a writer for finding the stop words
 		IndexWriter docFileWriter = new IndexWriter(docsFileIndexdirectory, docsFileConfig);
 
-		//Create a new document
+		//index the doc's file
 		try 
 		{
-			Document document = LuceneHelper.CreateDocument(docFileWriter, docsFilePath);
+			LuceneHelper.IndexDocument(docFileWriter, docsFilePath);
+			docFileWriter.close();
 		} 
 		catch (Exception e) 
 		{
@@ -82,51 +67,48 @@ public class RetrievalExperiment {
 		CharArraySet stopWordsSet = null;
 	    try 
 	    {
-	    	stopWordsSet = LuceneHelper.GetMostFrequentWords(reader);
+	    	stopWordsSet = LuceneHelper.GetMostFrequentWords(reader, stopWords);
 		} 
 	    catch (Exception e) 
 	    {
 			e.printStackTrace();
 		}
-
-
-		//create a writer that indexes each document separately!    
-		StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
-		Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
-		IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
-		documentsConfig.setOpenMode(OpenMode.CREATE);
-		
-		//Create a writer for finding the stop words
-		IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
-
-		//Split the big document into it's sub-documents and index each of them
+	    
+		//Split the big document into it's sub-documents and index each one of them
 		try
 		{
 			//Split the document into it's sub documents
 			TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
-
+			
 			//Gets all the files in the dictionary
 			File[] files = new File(Constants.PARSED_DOCS_PATH).listFiles();
-			for (File file : files) {
-				if(!file.isDirectory()
-						&& !file.isHidden()
-						&& file.exists()
-						&& file.canRead()
-						) {
-					//Document document = LuceneHelper.CreateDocument(writer, file.getCanonicalPath());
+			
+			//create a writer that indexes each document separately!    
+			StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
+			Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
+			IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
+			documentsConfig.setOpenMode(OpenMode.CREATE);
+			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
+			
+			for (File file : files) 
+			{
+				if(!file.isDirectory() && !file.isHidden() && file.exists() && file.canRead())
+				{
+					LuceneHelper.IndexDocument(documentsWriter, file.getCanonicalPath());			
 				}
 			}
-
+			documentsWriter.close();
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 
-
 		//get queries from the query file
-		queries = TextFileReader.ReadFileQueries(queryFilePath);
-			
-	
+		queries = TextFileReader.ReadFileQueries(queryFilePath, stopWords);
+
+		//search queries
+		LuceneHelper.SearchIndexForQueries(queries);
+				
 	}		
 }

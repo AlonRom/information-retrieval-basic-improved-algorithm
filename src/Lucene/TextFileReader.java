@@ -12,23 +12,7 @@ import java.io.FileWriter;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
 
 
 public class TextFileReader {
@@ -55,10 +39,10 @@ public class TextFileReader {
         return parameters;
 	}
 	
-	public static Map<Integer, List<String>> ReadFileQueries(String inputFile) 
+	public static Map<Integer, String> ReadFileQueries(String inputFile, List<String> stopWords) 
 	{
 		String content = null;
-		Map<Integer, List<String>> queries = new HashMap<Integer, List<String>>();
+		Map<Integer, String> queries = new HashMap<Integer, String>();
 		try 
 		{
 			content = new String(Files.readAllBytes(Paths.get(inputFile)));
@@ -70,15 +54,20 @@ public class TextFileReader {
 	
 		String[] parts = content.split("\\*");
 		for (String part : parts) 
-		{		
+		{	
 			//get query Id
 			Integer queryId = GetNumberFromString(part);
 			
 			//retrieve terms for a query
-			List<String> queryTerms = GetQueryTerms(part);
+			String queryTerms = GetQueryTerms(part, stopWords);
+			
+		    System.out.println("Query Id " + queryId + " original query: " + part); 
 			
 			if(queryId > 0)
-				queries.put(queryId, queryTerms);					
+			{
+				System.out.println("Query Id " + queryId + " after removing stop words, hyphenated,.. query: " + queryTerms); 
+				queries.put(queryId, queryTerms);
+			}
 		}
 		return queries;		
 	}
@@ -86,7 +75,6 @@ public class TextFileReader {
 	public static void SplitDocuments(String inputFile,String outPath)
 	{
 		String content = null;
-		Map<Integer, Document> documents = new HashMap<Integer, Document>();
 		try
 		{
 			content = new String(Files.readAllBytes(Paths.get(inputFile)));
@@ -121,9 +109,7 @@ public class TextFileReader {
 			catch (Exception e){
 				e.printStackTrace();
 			}
-
 		}
-
 	}
 
 	private static Integer GetNumberFromString(String str) 
@@ -135,7 +121,7 @@ public class TextFileReader {
 		return -1;
 	}
 	
-	private static List<String> GetQueryTerms(String str) 
+	private static String GetQueryTerms(String str, List<String> stopWords) 
 	{
 		List<String> listOfTerms = new ArrayList<String>(); 
 		//split string in order to take the query lines 
@@ -151,17 +137,21 @@ public class TextFileReader {
 				//take each word in the line and add it only if it's not a stop word
 				for (String word : wordsInLine)
 				{
-				   if(IfNotStopWord(word))
+				   if(IfNotStopWord(word, stopWords))
 					   listOfTerms.add(word);
 				}	
 			}	
 		}
 		
-		return listOfTerms;
+		return String.join(" ", listOfTerms);
 	}
 
-	private static boolean IfNotStopWord(String word) 
+	private static boolean IfNotStopWord(String word, List<String> stopWords) 
 	{
+		for(String str: stopWords) {
+		    if(str.trim().toLowerCase().contains(word))
+		       return false;
+		}
 		return true;
 	}
 }

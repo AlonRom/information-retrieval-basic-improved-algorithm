@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/lucene-demo-7.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-queryparser-7.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-misc-7.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-queries-7.3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
