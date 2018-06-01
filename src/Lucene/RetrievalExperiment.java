@@ -41,7 +41,8 @@ public class RetrievalExperiment {
 		retrievalAlgorithmMode = inputParameters.get(3);
 			
 		//create new index
-		StandardAnalyzer standardAnalyzer = new StandardAnalyzer();
+		CharArraySet emptyStopWord = null;
+		StandardAnalyzer standardAnalyzer = new StandardAnalyzer(emptyStopWord);
 		Directory docsFileIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCS_FILE_INDEX_PATH));
 		IndexWriterConfig docsFileConfig = new IndexWriterConfig(standardAnalyzer);
 		docsFileConfig.setOpenMode(OpenMode.CREATE);

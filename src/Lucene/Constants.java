@@ -11,4 +11,5 @@ public class Constants
 	public static final String PARSED_DOCS_FILE_TYPE=".txt";
 	public static final int STOP_WORDS_COUNT = 20;
 	public static final int MAX_SEARCH = 10;
+	public static final int TF_IDF_THRESHOLD=0;
 }
