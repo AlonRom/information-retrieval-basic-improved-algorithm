@@ -79,10 +79,9 @@ public class RetrievalExperiment {
 		try
 		{
 			//Split the document into it's sub documents
-			TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
+			int numberofDocs=TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
 			
-			//Gets all the files in the dictionary
-			File[] files = new File(Constants.PARSED_DOCS_PATH).listFiles();
+
 			
 			//create a writer that indexes each document separately!    
 			StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
@@ -90,15 +89,24 @@ public class RetrievalExperiment {
 			IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
 			documentsConfig.setOpenMode(OpenMode.CREATE);
 			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
-			
-			for (File file : files) 
-			{
-				if(!file.isDirectory() && !file.isHidden() && file.exists() && file.canRead())
-				{
-					LuceneHelper.IndexDocument(documentsWriter, file.getCanonicalPath());			
-				}
+
+			for (Integer i=0;i<numberofDocs;i++){
+				String path=Constants.PARSED_DOCS_PATH.concat(new Integer(i+1).toString());
+				path=path.concat(Constants.PARSED_DOCS_FILE_TYPE);
+				LuceneHelper.IndexDocument(documentsWriter, path);
 			}
 			documentsWriter.close();
+
+//			Gets all the files in the dictionary
+// 			File[] files = new File(Constants.PARSED_DOCS_PATH).listFiles();
+//			for (File file : files)
+//			{
+//				if(!file.isDirectory() && !file.isHidden() && file.exists() && file.canRead())
+//				{
+//					LuceneHelper.IndexDocument(documentsWriter, file.getCanonicalPath());
+//				}
+//			}
+//			documentsWriter.close();
 		}
 		catch (Exception e)
 		{

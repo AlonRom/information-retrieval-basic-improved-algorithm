@@ -72,7 +72,7 @@ public class TextFileReader {
 		return queries;		
 	}
 
-	public static void SplitDocuments(String inputFile,String outPath)
+	public static int SplitDocuments(String inputFile,String outPath)
 	{
 		String content = null;
 		try
@@ -109,7 +109,9 @@ public class TextFileReader {
 			catch (Exception e){
 				e.printStackTrace();
 			}
+
 		}
+		return parts.length-1;
 	}
 
 	private static Integer GetNumberFromString(String str) 

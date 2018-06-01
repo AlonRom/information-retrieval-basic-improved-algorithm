@@ -20,10 +20,8 @@ import org.apache.lucene.misc.HighFreqTerms;
 import org.apache.lucene.misc.TermStats;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
+import org.apache.lucene.search.similarities.Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.document.Field;
@@ -107,10 +105,12 @@ public class LuceneHelper
 	{
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-		
+
+
 		QueryParser queryParser = new QueryParser(Constants.CONTENT, new StandardAnalyzer(stopWordSet));
 		Query query = queryParser.parse(searchQuery);
 		TopDocs results = indexSearcher.search(query, 1000);
+		//Explanation exp=indexSearcher.explain(query,228);
 		ScoreDoc[] hits = results.scoreDocs;
 		
 		int numTotalHits = Math.toIntExact(results.totalHits);
