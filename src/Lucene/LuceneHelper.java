@@ -87,21 +87,38 @@ public class LuceneHelper
 
 	public static void SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet)
 	{
+		String Match[]=new String[queries.size()];
 		for (Map.Entry<Integer, String> entry : queries.entrySet())
 		{
 		    try 
 		    {
 				System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
-				SearchQuery(entry.getValue(),stopWordSet );
+				ScoreDoc[] hits=SearchQuery(entry.getValue(),stopWordSet);
+
+				String match=entry.getKey().toString().concat("  ");
+				for (ScoreDoc hit: hits){
+					if (hit.score>=Constants.SCORE_THRESHOLD){
+						match=match.concat(new Integer(hit.doc+1).toString());
+						match=match.concat(" ");
+
+					}
+					else{
+						break;
+					}
+				}
+				Match[entry.getKey()]=match;
 			} 
 		    catch (Exception e) {
 				e.printStackTrace();
+			}
+			for (String match:Match){
+		    	System.out.println("Query " + match);
 			}
 		  
 		}
 	}
 	
-	public static void SearchQuery(String searchQuery, CharArraySet stopWordSet) throws IOException, ParseException
+	public static ScoreDoc[] SearchQuery(String searchQuery, CharArraySet stopWordSet) throws IOException, ParseException
 	{
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
@@ -115,6 +132,7 @@ public class LuceneHelper
 		
 		int numTotalHits = Math.toIntExact(results.totalHits);
 		System.out.println(numTotalHits + " total matching documents");
+		return hits;
 		 // Iterate through the results:
 	    /*for (int i = 0; i < hits.length; i++) {
 	      Document hitDoc = indexSearcher.doc(hits[i].doc);
