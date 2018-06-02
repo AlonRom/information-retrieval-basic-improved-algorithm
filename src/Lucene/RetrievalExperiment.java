@@ -13,6 +13,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
@@ -63,6 +64,8 @@ public class RetrievalExperiment {
 		
 		//get 20 words that appear most frequently in the collection 	
 		CharArraySet stopWordsSet = null;
+
+		ClassicSimilarity similarity=new ClassicSimilarity();
 	    try 
 	    {
 	    	stopWordsSet = LuceneHelper.GetMostFrequentWords(reader, stopWords);
@@ -76,16 +79,17 @@ public class RetrievalExperiment {
 		try
 		{
 			//Split the document into it's sub documents
-			int numberofDocs = TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
+			int numberOfDocs = TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
 						
 			//create a writer that indexes each document separately!    
 			StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
 			Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
 			IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
 			documentsConfig.setOpenMode(OpenMode.CREATE);
+			documentsConfig.setSimilarity(similarity);
 			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
 
-			for (Integer i=0;i<numberofDocs;i++){
+			for (Integer i=0;i<numberOfDocs;i++){
 				String path=Constants.PARSED_DOCS_PATH.concat(Integer.toString(i+1));
 				path=path.concat(Constants.PARSED_DOCS_FILE_TYPE);
 				LuceneHelper.IndexDocument(documentsWriter, path);
@@ -112,7 +116,7 @@ public class RetrievalExperiment {
 		queries = TextFileReader.ReadFileQueries(queryFilePath, stopWords);
 
 		//search queries
-		LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath);
+		LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath,similarity);
 				
 	}		
 }

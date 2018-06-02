@@ -88,7 +88,7 @@ public class LuceneHelper
 		return new CharArraySet(stopWordsCollection, true);
 	}
 
-	public static void SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath) throws FileNotFoundException, UnsupportedEncodingException
+	public static void SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath,ClassicSimilarity similarity) throws FileNotFoundException, UnsupportedEncodingException
 	{  
 		String matches[]=new String[queries.size()];
 		for (Map.Entry<Integer, String> entry : queries.entrySet())
@@ -96,7 +96,7 @@ public class LuceneHelper
 		    try 
 		    {
 		    	System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
-				ScoreDoc[] hits=SearchQuery(entry.getValue(),stopWordSet);
+				ScoreDoc[] hits=SearchQuery(entry.getValue(),stopWordSet,similarity);
 
 				String match=entry.getKey().toString().concat("  ");
 				for (ScoreDoc hit: hits)
@@ -132,7 +132,7 @@ public class LuceneHelper
 		writer.close();
 	}
 
-	public static ScoreDoc[] SearchQuery(String searchQuery, CharArraySet stopWordSet) throws IOException, ParseException
+	public static ScoreDoc[] SearchQuery(String searchQuery, CharArraySet stopWordSet, ClassicSimilarity similarity) throws IOException, ParseException
 	{
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
@@ -140,8 +140,7 @@ public class LuceneHelper
 
 		QueryParser queryParser = new QueryParser(Constants.CONTENT, new StandardAnalyzer(stopWordSet));
 		Query query = queryParser.parse(searchQuery);
-		ClassicSimilarity s=new ClassicSimilarity();
-		indexSearcher.setSimilarity(s);
+		indexSearcher.setSimilarity(similarity);
 		TopDocs results = indexSearcher.search(query, 1000);
 		//Explanation exp=indexSearcher.explain(query,228);
 		ScoreDoc[] hits = results.scoreDocs;
