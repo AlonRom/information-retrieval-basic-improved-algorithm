@@ -3,6 +3,7 @@ package Lucene;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.lucene.analysis.CharArraySet;
@@ -96,16 +97,7 @@ public class RetrievalExperiment {
 			}
 			documentsWriter.close();
 
-//			Gets all the files in the dictionary
-// 			File[] files = new File(Constants.PARSED_DOCS_PATH).listFiles();
-//			for (File file : files)
-//			{
-//				if(!file.isDirectory() && !file.isHidden() && file.exists() && file.canRead())
-//				{
-//					LuceneHelper.IndexDocument(documentsWriter, file.getCanonicalPath());
-//				}
-//			}
-//			documentsWriter.close();
+
 		}
 		catch (Exception e)
 		{
@@ -116,7 +108,16 @@ public class RetrievalExperiment {
 		queries = TextFileReader.ReadFileQueries(queryFilePath, stopWords);
 
 		//search queries
-		LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath,similarity);
+		Map<Integer, Integer[]> result=new HashMap<Integer, Integer[]>();
+		result=LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath,similarity);
+		try {
+			long[] relvant = SystemRanking.relvantItemsRetrived(result, Constants.TRUTH_PATH);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+
 				
 	}		
 }
