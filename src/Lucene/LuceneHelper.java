@@ -24,6 +24,8 @@ import org.apache.lucene.misc.TermStats;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
+import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.TFIDFSimilarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -138,6 +140,8 @@ public class LuceneHelper
 
 		QueryParser queryParser = new QueryParser(Constants.CONTENT, new StandardAnalyzer(stopWordSet));
 		Query query = queryParser.parse(searchQuery);
+		ClassicSimilarity s=new ClassicSimilarity();
+		indexSearcher.setSimilarity(s);
 		TopDocs results = indexSearcher.search(query, 1000);
 		//Explanation exp=indexSearcher.explain(query,228);
 		ScoreDoc[] hits = results.scoreDocs;
