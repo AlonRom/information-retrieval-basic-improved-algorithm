@@ -12,6 +12,6 @@ public class Constants
 	public static final String PARSED_DOCS_FILE_TYPE=".txt";
 	public static final int STOP_WORDS_COUNT = 20;
 	public static final int MAX_RESULT = 10;
-	public static final double SCORE_THRESHOLD=0.8;
-	public static final boolean SYSTEM_RANKING=true; //should be false when the project submitted.
+	public static final double SCORE_THRESHOLD = 0.8;
+	public static final boolean SYSTEM_RANKING = true; //should be false when the project submitted.
 }

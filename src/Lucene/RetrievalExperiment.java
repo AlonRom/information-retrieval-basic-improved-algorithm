@@ -66,6 +66,7 @@ public class RetrievalExperiment {
 		//get 20 words that appear most frequently in the collection 	
 		CharArraySet stopWordsSet = null;
 
+		//create a default Similarity
 		ClassicSimilarity similarity=new ClassicSimilarity();
 	    try 
 	    {
@@ -90,14 +91,13 @@ public class RetrievalExperiment {
 			documentsConfig.setSimilarity(similarity);
 			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
 
-			for (Integer i=0;i<numberOfDocs;i++){
+			for (Integer i=0;i<numberOfDocs;i++)
+			{
 				String path=Constants.PARSED_DOCS_PATH.concat(Integer.toString(i+1));
 				path=path.concat(Constants.PARSED_DOCS_FILE_TYPE);
 				LuceneHelper.IndexDocument(documentsWriter, path);
 			}
 			documentsWriter.close();
-
-
 		}
 		catch (Exception e)
 		{
@@ -108,32 +108,28 @@ public class RetrievalExperiment {
 		queries = TextFileReader.ReadFileQueries(queryFilePath, stopWords);
 
 		//search queries
-		Map<Integer, Integer[]> result=new HashMap<Integer, Integer[]>();
-		result=LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath,similarity);
-		if (Constants.SYSTEM_RANKING) {
+		Map<Integer, Integer[]> result = new HashMap<Integer, Integer[]>();
+		result = LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath,similarity);
+		if (Constants.SYSTEM_RANKING) 
+		{
 			//for each query the number of *relevant* items that was retrieved by the system
 			long[] relvantRetrieved = SystemRanking.numRelevantItemsRetrieved(result, Constants.TRUTH_PATH);
 
 			//for each query the number of true relevant items from the whole collection
-			long[] relevant=SystemRanking.numRelevantItems(Constants.TRUTH_PATH,Integer.valueOf(result.size()));
+			long[] relevant = SystemRanking.numRelevantItems(Constants.TRUTH_PATH,Integer.valueOf(result.size()));
 
 			//for each query the number of items that was retrieved by the system
 			long[] retrieved = SystemRanking.numItemsRetrieved(result);
 
 			//for each query the precision of our system -  (relevant items retrieve)/(retrieved items)
-			float[] precision=SystemRanking.precision(relvantRetrieved,retrieved);
+			float[] precision = SystemRanking.precision(relvantRetrieved,retrieved);
 
 			//for each query the recall of our system - (relevant items retrieve)/relevant
-			float[] recall=SystemRanking.recall(relvantRetrieved,relevant);
+			float[] recall = SystemRanking.recall(relvantRetrieved,relevant);
 
 			//print the average precision and recall
 			System.out.println("The average precision: "+ SystemRanking.average(precision));
 			System.out.println("The average recall: "+ SystemRanking.average(recall));
-
-
-		}
-
-
-				
+		}				
 	}		
 }

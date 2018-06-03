@@ -91,8 +91,8 @@ public class LuceneHelper
 
 	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath,ClassicSimilarity similarity) throws FileNotFoundException, UnsupportedEncodingException
 	{  
-		String matches[]=new String[queries.size()];
-		Map<Integer, Integer[]> matchMap=new HashMap<Integer, Integer[]>();
+		String matches[] = new String[queries.size()];
+		Map<Integer, Integer[]> matchMap = new HashMap<Integer, Integer[]>();
 		for (Map.Entry<Integer, String> entry : queries.entrySet())
 		{
 		    try 
@@ -105,20 +105,16 @@ public class LuceneHelper
 				int i=0;
 				for (ScoreDoc hit: hits)
 				{
-
-					if (i==Constants.MAX_RESULT){
+					if (i==Constants.MAX_RESULT || hit.score < Constants.SCORE_THRESHOLD)
+					{
 						break;
 					}
-					if (hit.score>=Constants.SCORE_THRESHOLD)
+					if (hit.score >= Constants.SCORE_THRESHOLD)
 					{
 						matchID[i]=hit.doc+1;
 						i++;
 						match=match.concat(Integer.toString(hit.doc+1));
 						match=match.concat(" ");
-					}
-					else
-					{
-						break;
 					}
 				}
 				matches[entry.getKey()-1]=match;
@@ -149,22 +145,14 @@ public class LuceneHelper
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 
-
 		QueryParser queryParser = new QueryParser(Constants.CONTENT, new StandardAnalyzer(stopWordSet));
 		Query query = queryParser.parse(searchQuery);
 		indexSearcher.setSimilarity(similarity);
 		TopDocs results = indexSearcher.search(query, 1000);
-		//Explanation exp=indexSearcher.explain(query,228);
 		ScoreDoc[] hits = results.scoreDocs;
 		
 		int numTotalHits = Math.toIntExact(results.totalHits);
 		System.out.println(numTotalHits + " total matching documents");
 		return hits;
-		 // Iterate through the results:
-	    /*for (int i = 0; i < hits.length; i++) {
-	      Document hitDoc = indexSearcher.doc(hits[i].doc);
-		  System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
-	    }*/
-
 	}
 }
