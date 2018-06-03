@@ -110,13 +110,29 @@ public class RetrievalExperiment {
 		//search queries
 		Map<Integer, Integer[]> result=new HashMap<Integer, Integer[]>();
 		result=LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath,similarity);
-		try {
-			long[] relvant = SystemRanking.relvantItemsRetrived(result, Constants.TRUTH_PATH);
+		if (Constants.SYSTEM_RANKING) {
+			//for each query the number of *relevant* items that was retrieved by the system
+			long[] relvantRetrieved = SystemRanking.numRelevantItemsRetrieved(result, Constants.TRUTH_PATH);
+
+			//for each query the number of true relevant items from the whole collection
+			long[] relevant=SystemRanking.numRelevantItems(Constants.TRUTH_PATH,Integer.valueOf(result.size()));
+
+			//for each query the number of items that was retrieved by the system
+			long[] retrieved = SystemRanking.numItemsRetrieved(result);
+
+			//for each query the precision of our system -  (relevant items retrieve)/(retrieved items)
+			float[] precision=SystemRanking.precision(relvantRetrieved,retrieved);
+
+			//for each query the recall of our system - (relevant items retrieve)/relevant
+			float[] recall=SystemRanking.recall(relvantRetrieved,relevant);
+
+			//print the average precision and recall
+			System.out.println("The average precision: "+ SystemRanking.average(precision));
+			System.out.println("The average recall: "+ SystemRanking.average(recall));
+
+
 		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
+
 
 				
 	}		
