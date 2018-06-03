@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +93,7 @@ public class LuceneHelper
 
 	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath,ClassicSimilarity similarity) throws FileNotFoundException, UnsupportedEncodingException
 	{  
+		List<Integer> sortedDocs = new ArrayList<Integer>();
 		String matches[] = new String[queries.size()];
 		Map<Integer, Integer[]> matchMap = new HashMap<Integer, Integer[]>();
 		for (Map.Entry<Integer, String> entry : queries.entrySet())
@@ -100,9 +103,10 @@ public class LuceneHelper
 		    	System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
 				ScoreDoc[] hits=SearchQuery(entry.getValue(),stopWordSet,similarity);
 				Integer matchID[]=new Integer[Constants.MAX_RESULT];
-
-				String match=entry.getKey().toString().concat("  ");
+				
+				//filter document by score threshold
 				int i=0;
+				sortedDocs.clear();
 				for (ScoreDoc hit: hits)
 				{
 					if (i==Constants.MAX_RESULT || hit.score < Constants.SCORE_THRESHOLD)
@@ -111,12 +115,23 @@ public class LuceneHelper
 					}
 					if (hit.score >= Constants.SCORE_THRESHOLD)
 					{
-						matchID[i]=hit.doc+1;
+						sortedDocs.add(hit.doc+1);
 						i++;
-						match=match.concat(Integer.toString(hit.doc+1));
-						match=match.concat(" ");
 					}
 				}
+				
+				//sort filtered documents into ascending order and prepare for output print
+				i=0;
+		        Collections.sort(sortedDocs); 
+				String match=entry.getKey().toString().concat("  ");
+				for (Integer doc: sortedDocs)
+				{
+					matchID[i] = doc;
+					i++;
+					match=match.concat(Integer.toString(doc));
+					match=match.concat(" ");				
+				}
+					
 				matches[entry.getKey()-1]=match;
 				matchMap.put(entry.getKey(),matchID);
 			} 
