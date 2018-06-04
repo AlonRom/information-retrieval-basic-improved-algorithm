@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -17,6 +18,9 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+
+
+
 
 public class RetrievalExperiment {
 
@@ -89,6 +93,7 @@ public class RetrievalExperiment {
 			IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
 			documentsConfig.setOpenMode(OpenMode.CREATE);
 			documentsConfig.setSimilarity(similarity);
+
 			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
 
 			for (Integer i=0;i<numberOfDocs;i++)
@@ -130,6 +135,6 @@ public class RetrievalExperiment {
 			//print the average precision and recall
 			System.out.println("The average precision: "+ SystemRanking.average(precision));
 			System.out.println("The average recall: "+ SystemRanking.average(recall));
-		}				
-	}		
+		}
+	}
 }
