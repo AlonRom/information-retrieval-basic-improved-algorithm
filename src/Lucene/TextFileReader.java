@@ -60,7 +60,7 @@ public class TextFileReader {
 			Integer queryId = GetNumberFromString(part);
 			
 			//retrieve terms for a query
-			String queryTerms = GetQueryTerms(part, stopWords);
+			String queryTerms = GetTextTerms(part, stopWords);
 			
 		    System.out.println("Query Id " + queryId + " original query: " + part); 
 			
@@ -89,9 +89,10 @@ public class TextFileReader {
 		String outPathID=null;
 		new File(outPath).mkdirs();
 		for (String part : parts)
-		{
+		{			
 			if (part.equals(""))
 				continue;
+
 			//get doc Id
 			Matcher matcher = Pattern.compile("\\d+").matcher(part);
 			matcher.find();
@@ -104,6 +105,10 @@ public class TextFileReader {
 				File file = new File(outPathID);
 				file.createNewFile();
 				BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outPathID));
+				
+				//retrieve terms for a document
+				part = GetTextTerms(part,null);
+				
 				fileWriter.write(part);
 				fileWriter.close();
 			}
@@ -117,17 +122,12 @@ public class TextFileReader {
 
 	private static Integer GetNumberFromString(String str) 
 	{
-		//str = str.replaceAll("\\D+","");
 		Matcher matcher = Pattern.compile("\\d+").matcher(str);
 		matcher.find();
 		return Integer.valueOf(matcher.group());
-//		if(str.matches("-?\\d+(\\.\\d+)?"))
-//			return Integer.parseInt(str.replaceAll("\\D+",""));
-//
-//		return -1;
 	}
 	
-	private static String GetQueryTerms(String str, List<String> stopWords) 
+	private static String GetTextTerms(String str, List<String> stopWords) 
 	{
 		List<String> listOfTerms = new ArrayList<String>(); 
 		//split string in order to take the query lines 
@@ -143,7 +143,7 @@ public class TextFileReader {
 				//take each word in the line and add it only if it's not a stop word
 				for (String word : wordsInLine)
 				{
-				   if(IfNotStopWord(word, stopWords))
+				   if(stopWords == null || IfNotStopWord(word, stopWords))
 					   listOfTerms.add(word);
 				}	
 			}	
