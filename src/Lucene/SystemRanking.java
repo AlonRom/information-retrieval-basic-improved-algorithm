@@ -124,7 +124,7 @@ public class SystemRanking {
         return re;
     }
 
-    public static float average(float [] arr)
+    private static float average(float [] arr)
     {
         if (arr==null)
         {
@@ -136,5 +136,27 @@ public class SystemRanking {
             sum+=a;
         }
         return sum/arr.length;
+    }
+
+    public static void printSystemRanking(Map<Integer, Integer[]> result , String path){
+        //for each query the number of *relevant* items that was retrieved by the system
+        long[] relevantRetrieved = numRelevantItemsRetrieved(result, path);
+
+        //for each query the number of true relevant items from the whole collection
+        long[] relevant = numRelevantItems(path,Integer.valueOf(result.size()));
+
+        //for each query the number of items that was retrieved by the system
+        long[] retrieved = numItemsRetrieved(result);
+
+        //for each query the precision of our system -  (relevant items retrieve)/(retrieved items)
+        float[] precision = precision(relevantRetrieved,retrieved);
+
+        //for each query the recall of our system - (relevant items retrieve)/relevant
+        float[] recall = recall(relevantRetrieved,relevant);
+
+        //print the average precision and recall
+        System.out.println("The average precision: "+ average(precision));
+        System.out.println("The average recall: "+ average(recall));
+
     }
 }
