@@ -2,17 +2,17 @@ package Lucene;
 
 import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.util.CharsRef;
-
 import java.io.IOException;
 
 
 public class MySynonym {
     SynonymMap.Builder builder;
-    SynonymMap map = null;
+    SynonymMap map ;
 
     public MySynonym(){
 
        builder = new SynonymMap.Builder(true);
+       map=null;
     }
 
     public void AddSynonym(String term, String syn, boolean includeOrignal){
@@ -34,10 +34,6 @@ public class MySynonym {
         }
     }
 
-    public void initizlaize(){
-        builder = new SynonymMap.Builder(true);
-        map = null;
-    }
 
     public void UseDefault(){
         DefaultSynonym(true);

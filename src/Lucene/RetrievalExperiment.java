@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -86,7 +87,15 @@ public class RetrievalExperiment {
 		int numberOfDocs = TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
 
 		//create a writer that indexes each document separately!
+		MySynonym synonym=new MySynonym();
+		synonym.UseDefault();
+		synonym.BuildMyMap();
+		SynonymMap map=synonym.getMyMap();
+
+//		MyCustomAnalyzer documentsStandardAnalyzer = new MyCustomAnalyzer(map,reader);
+//		documentsStandardAnalyzer.createComponents(Constants.CONTENT);
 		StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
+
 		Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
 		IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
 		documentsConfig.setOpenMode(OpenMode.CREATE);
@@ -102,12 +111,14 @@ public class RetrievalExperiment {
 		queries = TextFileReader.ReadFileQueries(queryFilePath, stopWords);
 
 		//search queries
-		Map<Integer, Integer[]> result = new HashMap<Integer, Integer[]>();
-		result = LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath,similarity);
+		Map<Integer, Integer[]> result = LuceneHelper.SearchIndexForQueries(queries, stopWordsSet, outputFilePath,similarity);
+
+		//System ranking
 		if (Constants.SYSTEM_RANKING) 
 		{
 			//Print to the console the relevant information
 			SystemRanking.printSystemRanking(result,Constants.TRUTH_PATH);
 		}
+
 	}
 }
