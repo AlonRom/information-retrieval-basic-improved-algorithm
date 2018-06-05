@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -82,32 +81,22 @@ public class RetrievalExperiment {
 		}
 	    
 		//Split the big document into it's sub-documents and index each one of them
-		try
-		{
-			//Split the document into it's sub documents
-			int numberOfDocs = TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
-						
-			//create a writer that indexes each document separately!    
-			StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
-			Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
-			IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
-			documentsConfig.setOpenMode(OpenMode.CREATE);
-			documentsConfig.setSimilarity(similarity);
 
-			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
+		//Split the document into it's sub documents
+		int numberOfDocs = TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
 
-			for (Integer i=0;i<numberOfDocs;i++)
-			{
-				String path=Constants.PARSED_DOCS_PATH.concat(Integer.toString(i+1));
-				path=path.concat(Constants.PARSED_DOCS_FILE_TYPE);
-				LuceneHelper.IndexDocument(documentsWriter, path);
-			}
-			documentsWriter.close();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		//create a writer that indexes each document separately!
+		StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
+		Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
+		IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
+		documentsConfig.setOpenMode(OpenMode.CREATE);
+		documentsConfig.setSimilarity(similarity);
+
+		IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
+		LuceneHelper.IndexSplittedDocuments(documentsWriter,Constants.PARSED_DOCS_PATH,Constants.PARSED_DOCS_FILE_TYPE,numberOfDocs);
+
+		documentsWriter.close();
+
 
 		//get queries from the query file
 		queries = TextFileReader.ReadFileQueries(queryFilePath, stopWords);

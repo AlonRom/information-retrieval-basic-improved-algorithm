@@ -17,7 +17,7 @@ public class MySynonym {
 
     public void AddSynonym(String term, String syn, boolean includeOrignal){
         term.replaceAll(" ","\0");
-        syn.replaceAll(" ","\");
+        syn.replaceAll(" ","\0");
         builder.add(new CharsRef(term),new CharsRef(syn),includeOrignal);
     }
 

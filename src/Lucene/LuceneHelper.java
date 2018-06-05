@@ -170,4 +170,19 @@ public class LuceneHelper
 		System.out.println(numTotalHits + " total matching documents");
 		return hits;
 	}
+
+	public static void IndexSplittedDocuments(IndexWriter writer, String path, String type, int numOfDocs){
+		for (Integer i=0;i<numOfDocs;i++)
+		{
+			String path1=path;
+			path1=path1.concat(Integer.toString(i+1));
+			path1=path1.concat(type);
+			try {
+				IndexDocument(writer, path1);
+			}
+			catch (Exception e){
+				e.printStackTrace();
+			}
+		}
+	}
 }
