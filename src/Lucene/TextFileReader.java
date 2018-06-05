@@ -12,6 +12,8 @@ import java.io.FileWriter;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 
 
@@ -106,8 +108,9 @@ public class TextFileReader {
 				file.createNewFile();
 				BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outPathID));
 				
+				/*Improved 1 - clean document punctuation and lower case all terms */				
 				//retrieve terms for a document
-				part = GetTextTerms(part,null);
+				part = GetTextTerms(part, null);
 				
 				fileWriter.write(part);
 				fileWriter.close();
@@ -144,7 +147,11 @@ public class TextFileReader {
 				for (String word : wordsInLine)
 				{
 				   if(stopWords == null || IfNotStopWord(word, stopWords))
-					   listOfTerms.add(word);
+				   {
+					   /*Improved 2 - Stemming document */
+					   word = LuceneHelper.StemTerm(word); 
+					   listOfTerms.add(word);					   
+				   }
 				}	
 			}	
 		}
@@ -160,4 +167,5 @@ public class TextFileReader {
 		}
 		return true;
 	}
+
 }

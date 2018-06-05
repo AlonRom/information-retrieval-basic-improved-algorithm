@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,8 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
@@ -77,7 +81,6 @@ public class LuceneHelper
 	
 	public static CharArraySet GetMostFrequentWords(IndexReader reader, List<String> stopWords) throws Exception 
 	{
-
 		TermStats[] states = HighFreqTerms.getHighFreqTerms(reader, Constants.STOP_WORDS_COUNT, Constants.CONTENT, new HighFreqTerms.TotalTermFreqComparator());
 		List<TermStats> stopWordsCollection = Arrays.asList(states);
 		
@@ -89,6 +92,12 @@ public class LuceneHelper
 		}
 		System.out.println();
 		return new CharArraySet(stopWordsCollection, true);
+	}
+	
+	public static String StemTerm(String term) 
+	{
+	    PorterStemmer stemmer = new PorterStemmer();
+	    return stemmer.stem(term);
 	}
 
 	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath,ClassicSimilarity similarity) throws FileNotFoundException, UnsupportedEncodingException
@@ -171,14 +180,16 @@ public class LuceneHelper
 		return hits;
 	}
 
-	public static void IndexSplittedDocuments(IndexWriter writer, String path, String type, int numOfDocs){
+	public static void IndexSplittedDocuments(IndexWriter writer, String path, String type, int numOfDocs)
+	{
 		for (Integer i=0;i<numOfDocs;i++)
 		{
-			String path1=path;
-			path1=path1.concat(Integer.toString(i+1));
-			path1=path1.concat(type);
-			try {
-				IndexDocument(writer, path1);
+			String tempPath = path;
+			tempPath = tempPath.concat(Integer.toString(i+1));
+			tempPath = tempPath.concat(type);
+			try 
+			{
+				IndexDocument(writer, tempPath);
 			}
 			catch (Exception e){
 				e.printStackTrace();

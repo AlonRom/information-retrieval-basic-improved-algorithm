@@ -81,31 +81,21 @@ public class RetrievalExperiment {
 			e.printStackTrace();
 		}
 	    
-		//Split the big document into it's sub-documents and index each one of them
-
 		//Split the document into it's sub documents
 		int numberOfDocs = TextFileReader.SplitDocuments(docsFilePath,Constants.PARSED_DOCS_PATH);
-
+		
 		//create a writer that indexes each document separately!
-		MySynonym synonym=new MySynonym();
-		synonym.UseDefault();
-		synonym.BuildMyMap();
-		SynonymMap map=synonym.getMyMap();
-
-//		MyCustomAnalyzer documentsStandardAnalyzer = new MyCustomAnalyzer(map,reader);
-//		documentsStandardAnalyzer.createComponents(Constants.CONTENT);
 		StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
-
+		
 		Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
 		IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
 		documentsConfig.setOpenMode(OpenMode.CREATE);
 		documentsConfig.setSimilarity(similarity);
 
 		IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
-		LuceneHelper.IndexSplittedDocuments(documentsWriter,Constants.PARSED_DOCS_PATH,Constants.PARSED_DOCS_FILE_TYPE,numberOfDocs);
-
+		LuceneHelper.IndexSplittedDocuments(documentsWriter, Constants.PARSED_DOCS_PATH, Constants.PARSED_DOCS_FILE_TYPE, numberOfDocs);
+	
 		documentsWriter.close();
-
 
 		//get queries from the query file
 		queries = TextFileReader.ReadFileQueries(queryFilePath, stopWords);

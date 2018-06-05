@@ -155,6 +155,8 @@ public class SystemRanking {
         float[] recall = recall(relevantRetrieved,relevant);
 
         //print the average precision and recall
+        System.out.println("The precision: "+ precision[0]);
+        System.out.println("The recall: "+ recall[0]);
         System.out.println("The average precision: "+ average(precision));
         System.out.println("The average recall: "+ average(recall));
 
