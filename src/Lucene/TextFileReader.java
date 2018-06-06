@@ -142,14 +142,15 @@ public class TextFileReader {
 			for(int i=1; i < splitStr.length; i++)
 			{
 				//removes all non-letter characters, folds to lower case, then splits the input, Spaces are initially left in the input 
-				String[] wordsInLine = splitStr[i].replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
+				//String[] wordsInLine = splitStr[i].replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
+				String[] wordsInLine = splitStr[i].split("\\s+");
 				//take each word in the line and add it only if it's not a stop word
 				for (String word : wordsInLine)
 				{
 				   if(stopWords == null || IfNotStopWord(word, stopWords))
 				   {
 					   /*Improved 2 - Stemming document */
-					   word = LuceneHelper.StemTerm(word); 
+					   //word = LuceneHelper.StemTerm(word);
 					   listOfTerms.add(word);					   
 				   }
 				}	

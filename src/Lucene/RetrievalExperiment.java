@@ -87,14 +87,16 @@ public class RetrievalExperiment {
 		//create a writer that indexes each document separately!
 		StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(stopWordsSet);
 		MySynonym mySynonym = new MySynonym();
-		mySynonym.UseDefault();
+		mySynonym.UseDefaultSynonyms();
 		mySynonym.BuildMyMap();
+		mySynonym.UseDefaultPhrases();
+		CharArraySet phrases = mySynonym.getPhrasesSet();
 		SynonymMap map = mySynonym.getMyMap();
-		MyCustomAnalyzer ana = new MyCustomAnalyzer(map,stopWordsSet);
+		MyCustomAnalyzer ana = new MyCustomAnalyzer(map,stopWordsSet,phrases);
 
 		Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
-		//IndexWriterConfig documentsConfig = new IndexWriterConfig(ana);
-		IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
+		IndexWriterConfig documentsConfig = new IndexWriterConfig(ana);
+		//IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
 		documentsConfig.setOpenMode(OpenMode.CREATE);
 		documentsConfig.setSimilarity(similarity);
 

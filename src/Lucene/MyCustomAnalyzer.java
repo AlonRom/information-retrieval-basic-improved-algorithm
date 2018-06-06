@@ -2,6 +2,7 @@ package Lucene;
 
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.core.FlattenGraphFilter;
+import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.synonym.SynonymFilter;
@@ -14,13 +15,15 @@ public class MyCustomAnalyzer extends Analyzer {
     SynonymMap map;
     IndexReader reader;
     CharArraySet stopWordSet=null;
+    CharArraySet pharesSet=null;
     public MyCustomAnalyzer(SynonymMap map){
         this.map = map;
     }
 
-    public MyCustomAnalyzer(SynonymMap map, CharArraySet stopWordSet){
+    public MyCustomAnalyzer(SynonymMap map, CharArraySet stopWordSet,CharArraySet pharesSet){
         this.map = map;
         this.stopWordSet = stopWordSet;
+        this.pharesSet = pharesSet;
     }
 
 
@@ -30,9 +33,13 @@ public class MyCustomAnalyzer extends Analyzer {
         Tokenizer source = new StandardTokenizer();
         TokenStream filter = new StandardFilter(source);
         filter = new LowerCaseFilter(filter);
-        filter = new SynonymGraphFilter(filter,map,true);
+        if (pharesSet!=null)
+            filter = new AutoPhrasingTokenFilter(filter,pharesSet,false);
+        if (map!=null)
+            filter = new SynonymGraphFilter(filter,map,false);
         if (stopWordSet!=null)
             filter = new StopFilter(filter,stopWordSet);
+        filter = new PorterStemFilter(filter);
         return new TokenStreamComponents(source, filter);
     }
 

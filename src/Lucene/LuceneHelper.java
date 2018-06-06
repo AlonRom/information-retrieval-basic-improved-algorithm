@@ -170,10 +170,12 @@ public class LuceneHelper
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 		MySynonym syn = new MySynonym();
-		syn.UseDefault();
+		syn.UseDefaultSynonyms();
 		syn.BuildMyMap();
 		SynonymMap map = syn.getMyMap();
-		MyCustomAnalyzer ana=new MyCustomAnalyzer(map,stopWordSet);
+		syn.UseDefaultPhrases();
+		CharArraySet phrases = syn.getPhrasesSet();
+		MyCustomAnalyzer ana=new MyCustomAnalyzer(map,stopWordSet,phrases);
 
 		QueryParser queryParser = new QueryParser(Constants.CONTENT, ana);
 		Query query = queryParser.parse(searchQuery);
