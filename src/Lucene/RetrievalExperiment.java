@@ -114,8 +114,9 @@ public class RetrievalExperiment {
 		//System ranking
 		if (Constants.SYSTEM_RANKING) 
 		{
+			SystemRanking rank = new SystemRanking(result,Constants.TRUTH_PATH);
 			//Print to the console the relevant information
-			SystemRanking.printSystemRanking(result,Constants.TRUTH_PATH);
+			rank.printSystemRanking();
 		}
 
 	}

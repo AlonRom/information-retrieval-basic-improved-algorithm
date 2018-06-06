@@ -1,5 +1,7 @@
 package Lucene;
 
+import org.apache.lucene.analysis.synonym.SynonymMap;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -8,10 +10,51 @@ import java.util.Map;
 
 public class SystemRanking {
 
-    public static long[] numRelevantItemsRetrieved(Map<Integer,Integer[]> result, String truthPath)
+    Map<Integer,Integer[]> result;
+    long[] numRelevantRetrieved;
+    long[] numRelevant;
+    long[] numRetrieved;
+    String truthPath;
+    Integer numOfQueries;
+
+    public SystemRanking(Map<Integer,Integer[]> result,String truthPath){
+        this.result = result;
+        numOfQueries = result.size();
+        this.truthPath = truthPath;
+        numRelevantRetrieved = numRelevantItemsRetrieved();
+        numRelevant = numRelevantItems();
+        numRetrieved = numItemsRetrieved();
+
+    }
+
+    public long[] getNumRelevantRetrieved() {
+        return numRelevantRetrieved;
+    }
+
+    public long[] getNumRelevant(){
+        return numRelevant;
+    }
+
+    public long[] getNumRetrieved(){
+        return numRetrieved;
+    }
+
+    public float[] getPrecision(){
+        return precision();
+    }
+
+    public float[] getRecall(){
+        return recall();
+    }
+
+    public float[] getFScore(double beta){
+        return fScore(beta);
+    }
+
+    private long[] numRelevantItemsRetrieved()
     {
         String truth;
-        String TruthLines[]=null;
+        String TruthLines[] = null;
         long[] relvantRetrived=new long[result.size()];
         Arrays.fill(relvantRetrived, 0);
 
@@ -50,11 +93,11 @@ public class SystemRanking {
 
     }
 
-    public static long[] numRelevantItems(String truthPath, Integer numOfQueries)
+    private long[] numRelevantItems()
     {
         String truth;
         String TruthLines[]=null;
-        long [] relvant=new long[numOfQueries];
+        long [] relevant=new long[numOfQueries];
 
         try 
         {
@@ -66,16 +109,16 @@ public class SystemRanking {
                     continue;
                 }
                 String numbers[] = line.split(" +");
-                relvant[Integer.valueOf(numbers[0])-1]=(long)(numbers.length-1);
+                relevant[Integer.valueOf(numbers[0])-1]=(long)(numbers.length-1);
             }
         }
         catch (Exception e){
             e.printStackTrace();
         }
-        return relvant;
+        return relevant;
     }
 
-    public static long[] numItemsRetrieved(Map<Integer,Integer[]> result)
+    private long[] numItemsRetrieved()
     {
         long [] numItems=new long[result.size()];
         Arrays.fill(numItems, 0);
@@ -94,32 +137,32 @@ public class SystemRanking {
         return numItems;
     }
 
-    public static float[] precision(long [] relvantRetrieved,long[] retrieved)
+    private float[] precision()
     {
-        float[] preci=new float[retrieved.length];
+        float[] preci=new float[numRetrieved.length];
         for (int i=0;i<preci.length;i++)
         {
-            if (retrieved[i]==0)
+            if (numRetrieved[i]==0)
             {
                 preci[i]=0;
                 continue;
             }
-            preci[i]=(float) relvantRetrieved[i]/retrieved[i];
+            preci[i]=(float) numRelevantRetrieved[i]/numRetrieved[i];
         }
         return preci;
     }
 
-    public static float[] recall(long [] relvantRetrieved,long[] relevant)
+    private float[] recall()
     {
-        float[] re=new float[relevant.length];
+        float[] re=new float[numRelevant.length];
         for (int i=0;i<re.length;i++)
         {
-            if (relevant[i]==0)
+            if (numRelevant[i]==0)
             {
                 re[i]=0;
                 continue;
             }
-            re[i]=(float) relvantRetrieved[i]/relevant[i];
+            re[i]=(float) numRelevantRetrieved[i]/numRelevant[i];
         }
         return re;
     }
@@ -138,27 +181,37 @@ public class SystemRanking {
         return sum/arr.length;
     }
 
-    public static void printSystemRanking(Map<Integer, Integer[]> result , String path){
-        //for each query the number of *relevant* items that was retrieved by the system
-        long[] relevantRetrieved = numRelevantItemsRetrieved(result, path);
+    public  void printSystemRanking(){
 
-        //for each query the number of true relevant items from the whole collection
-        long[] relevant = numRelevantItems(path,Integer.valueOf(result.size()));
-
-        //for each query the number of items that was retrieved by the system
-        long[] retrieved = numItemsRetrieved(result);
-
-        //for each query the precision of our system -  (relevant items retrieve)/(retrieved items)
-        float[] precision = precision(relevantRetrieved,retrieved);
+        float[] precision = getPrecision();
 
         //for each query the recall of our system - (relevant items retrieve)/relevant
-        float[] recall = recall(relevantRetrieved,relevant);
+        float[] recall = getRecall();
+
+        float[] fs = getFScore(Constants.FSCORE_BETA);
 
         //print the average precision and recall
-        System.out.println("The precision: "+ precision[0]);
-        System.out.println("The recall: "+ recall[0]);
+        //System.out.println("The precision: "+ precision[0]);
+        //System.out.println("The recall: "+ recall[0]);
         System.out.println("The average precision: "+ average(precision));
         System.out.println("The average recall: "+ average(recall));
+        System.out.println("The average 1f-score: "+ average(fs));
 
+    }
+
+    private float[] fScore(double beta) {
+        float[] precision = getPrecision();
+        float[] recall = getRecall();
+        float[] fs = new float[precision.length];
+
+        for (int i=0;i<precision.length;i++){
+            if (precision[i]==0 && recall[i]==0){
+                fs[i]=0;
+                continue;
+            }
+            fs[i] =  (((float)(1+Math.pow(beta,2.0))*(precision[i]*recall[i]))/(float)((Math.pow(beta,2.0)*precision[i])+recall[i]));
+
+        }
+        return fs;
     }
 }
