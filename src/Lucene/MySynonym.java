@@ -16,8 +16,8 @@ public class MySynonym {
     }
 
     public void AddSynonym(String term, String syn, boolean includeOrignal){
-        term.replaceAll(" ","\0");
-        syn.replaceAll(" ","\0");
+        term.replaceAll(" ","\u0000");
+        syn.replaceAll(" ","\u0000");
         builder.add(new CharsRef(term),new CharsRef(syn),includeOrignal);
     }
 
@@ -44,11 +44,14 @@ public class MySynonym {
     }
 
     private void DefaultSynonym(boolean saveOriginal){
-        AddSynonym("U.S","United State Of America",saveOriginal);
-        AddSynonym("U.S","USA",saveOriginal);
-        AddSynonym("U.S","UNITED STATES",saveOriginal);
+        AddSynonym("us","united state of america",saveOriginal);
+        AddSynonym("us","usa",saveOriginal);
+        AddSynonym("us","unit state",saveOriginal);
+        AddSynonym("united states","us",saveOriginal);
         AddSynonym("U.N","United Nations",saveOriginal);
         AddSynonym("VIET NAM","VIETNAM",saveOriginal);
+        AddSynonym("hot","cold",saveOriginal);
+        AddSynonym("cold","hot",saveOriginal);
     }
 
 

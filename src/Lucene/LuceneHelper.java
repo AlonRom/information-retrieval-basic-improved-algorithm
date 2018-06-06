@@ -19,6 +19,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.TextField;
@@ -168,8 +169,13 @@ public class LuceneHelper
 	{
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
+		MySynonym syn = new MySynonym();
+		syn.UseDefault();
+		syn.BuildMyMap();
+		SynonymMap map = syn.getMyMap();
+		MyCustomAnalyzer ana=new MyCustomAnalyzer(map,stopWordSet);
 
-		QueryParser queryParser = new QueryParser(Constants.CONTENT, new StandardAnalyzer(stopWordSet));
+		QueryParser queryParser = new QueryParser(Constants.CONTENT, ana);
 		Query query = queryParser.parse(searchQuery);
 		indexSearcher.setSimilarity(similarity);
 		TopDocs results = indexSearcher.search(query, 1000);
