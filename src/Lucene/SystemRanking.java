@@ -191,8 +191,8 @@ public class SystemRanking {
         float[] fs = getFScore(Constants.FSCORE_BETA);
 
         //print the average precision and recall
-        //System.out.println("The precision: "+ precision[0]);
-        //System.out.println("The recall: "+ recall[0]);
+        System.out.println("The precision: "+ precision[1]);
+        System.out.println("The recall: "+ recall[1]);
         System.out.println("The average precision: "+ average(precision));
         System.out.println("The average recall: "+ average(recall));
         System.out.println("The average 1f-score: "+ average(fs));
