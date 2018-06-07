@@ -2,6 +2,8 @@ package Lucene;
 
 public class Constants 
 {
+	public static final String BASIC_MODE = "basic";
+	public static final String IMPROVED_MODE = "improved";
 	public static final String CONTENT = "content";
 	public static final String FILE_NAME = "filename";
 	public static final String FILE_PATH = "filepath";

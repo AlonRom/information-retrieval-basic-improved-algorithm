@@ -11,12 +11,8 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.CharArrayMap;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 
 public class AutoPhrasingTokenFilter extends TokenFilter {
-
-    //private static final Logger Log = LoggerFactory.getLogger( AutoPhrasingTokenFilter.class );
 
     // The list of auto-phrase character strings
     private CharArrayMap<CharArraySet> phraseMap;
@@ -327,7 +323,7 @@ public class AutoPhrasingTokenFilter extends TokenFilter {
 
 
     private void emit( char[] token ) {
-        System.out.println( "emit: " + new String( token ) );
+        //System.out.println( "emit: " + new String( token ) );
         if (replaceWhitespaceWith != null) {
             token = replaceWhiteSpace( token );
         }

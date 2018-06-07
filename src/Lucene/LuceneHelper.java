@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -15,17 +14,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.synonym.SynonymMap;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.misc.HighFreqTerms;
 import org.apache.lucene.misc.TermStats;
@@ -33,7 +30,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
-import org.apache.lucene.search.similarities.TFIDFSimilarity;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -41,7 +38,49 @@ import org.apache.lucene.index.Term;
 
 public class LuceneHelper 
 {
-	/** Indexes a single document **/
+	public static CharArraySet GetMostFrequentWords(String docsFilePath, List<String> stopWords) throws Exception 
+	{
+		try 
+		{			
+			//create new index for all document file
+			CharArraySet emptyStopWord = null;
+			StandardAnalyzer standardAnalyzer = new StandardAnalyzer(emptyStopWord);
+			Directory docsFileIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCS_FILE_INDEX_PATH));
+			IndexWriterConfig docsFileConfig = new IndexWriterConfig(standardAnalyzer);
+			docsFileConfig.setOpenMode(OpenMode.CREATE);
+			
+			//create a writer for finding the stop words
+			IndexWriter docFileWriter = new IndexWriter(docsFileIndexdirectory, docsFileConfig);
+	
+			//index the doc's file
+		    LuceneHelper.IndexDocument(docFileWriter, docsFilePath);
+			docFileWriter.close();
+				
+			//open index reader
+			IndexReader reader = DirectoryReader.open(docsFileIndexdirectory);
+		
+			//get high frequent terms
+			TermStats[] states = HighFreqTerms.getHighFreqTerms(reader, Constants.STOP_WORDS_COUNT, Constants.CONTENT, new HighFreqTerms.TotalTermFreqComparator());
+			List<TermStats> stopWordsCollection = Arrays.asList(states);
+			
+			//fill list of stop words
+			System.out.print("Stop Words: ");
+			for (TermStats term : states)
+			{
+			    System.out.print(term.termtext.utf8ToString() + " "); 
+			    stopWords.add(term.termtext.utf8ToString());
+			}
+			System.out.println();
+			//return a char array set in order to initialize other analyzers with stop words consideration  
+			return new CharArraySet(stopWordsCollection, true);
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			throw e;
+		}
+	}
+		
 	public static Document IndexDocument(IndexWriter writer, String filePath) throws Exception 
 	{
 		// make a new, empty document
@@ -80,19 +119,23 @@ public class LuceneHelper
 		return document;
 	}
 	
-	public static CharArraySet GetMostFrequentWords(IndexReader reader, List<String> stopWords) throws Exception 
+	public static void IndexSplittedDocuments(IndexWriter writer, String path, String type, int numOfDocs) throws Exception
 	{
-		TermStats[] states = HighFreqTerms.getHighFreqTerms(reader, Constants.STOP_WORDS_COUNT, Constants.CONTENT, new HighFreqTerms.TotalTermFreqComparator());
-		List<TermStats> stopWordsCollection = Arrays.asList(states);
-		
-		System.out.print("Stop Words: ");
-		for (TermStats term : states)
+		try 
 		{
-		    System.out.print(term.termtext.utf8ToString() + " "); 
-		    stopWords.add(term.termtext.utf8ToString());
+			for (Integer i=0;i<numOfDocs;i++)
+			{
+				String tempPath = path;
+				tempPath = tempPath.concat(Integer.toString(i+1));
+				tempPath = tempPath.concat(type);
+				IndexDocument(writer, tempPath);						
+			}
 		}
-		System.out.println();
-		return new CharArraySet(stopWordsCollection, true);
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw e;
+		}
 	}
 	
 	public static String StemTerm(String term) 
@@ -101,15 +144,16 @@ public class LuceneHelper
 	    return stemmer.stem(term);
 	}
 
-	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath,ClassicSimilarity similarity) throws FileNotFoundException, UnsupportedEncodingException
+	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath,ClassicSimilarity similarity) throws Exception
 	{  
-		List<Integer> sortedDocs = new ArrayList<Integer>();
-		String matches[] = new String[queries.size()];
-		Map<Integer, Integer[]> matchMap = new HashMap<Integer, Integer[]>();
-		for (Map.Entry<Integer, String> entry : queries.entrySet())
-		{
-		    try 
-		    {
+	    try 
+	    {
+			List<Integer> sortedDocs = new ArrayList<Integer>();
+			String matches[] = new String[queries.size()];
+			Map<Integer, Integer[]> matchMap = new HashMap<Integer, Integer[]>();
+			
+			for (Map.Entry<Integer, String> entry : queries.entrySet())
+			{
 		    	System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
 				ScoreDoc[] hits=SearchQuery(entry.getValue(),stopWordSet,similarity);
 				Integer matchID[]=new Integer[Constants.MAX_RESULT];
@@ -129,8 +173,10 @@ public class LuceneHelper
 						i++;
 					}
 					//improvement if all the result below threshold - return top 2 result!
-					else if(i<2){
-						if (i==0) {
+					else if(i<2)
+					{
+						if (i==0) 
+						{
 							sortedDocs.add(hits[0].doc + 1);
 						}
 						sortedDocs.add(hits[1].doc+1);
@@ -147,19 +193,22 @@ public class LuceneHelper
 					matchID[i] = doc;
 					i++;
 					match=match.concat(Integer.toString(doc));
-					match=match.concat(" ");				
+					match=match.concat(" ");	
 				}
 					
 				matches[entry.getKey()-1]=match;
 				matchMap.put(entry.getKey(),matchID);
-			} 
-		    catch (Exception e) 
-		    {
-				e.printStackTrace();
-			}	  
-		}
-	    PrintMathces(outputFilePath, matches);
-		return matchMap;
+	  
+			}
+			
+		    PrintMathces(outputFilePath, matches);
+			return matchMap;
+		} 
+	    catch (Exception e) 
+	    {
+			e.printStackTrace();
+			throw e;
+		}	
 	}
 	
 	private static void PrintMathces(String outputFilePath, String[] matches) throws FileNotFoundException, UnsupportedEncodingException 
@@ -194,22 +243,5 @@ public class LuceneHelper
 		int numTotalHits = Math.toIntExact(results.totalHits);
 		System.out.println(numTotalHits + " total matching documents");
 		return hits;
-	}
-
-	public static void IndexSplittedDocuments(IndexWriter writer, String path, String type, int numOfDocs)
-	{
-		for (Integer i=0;i<numOfDocs;i++)
-		{
-			String tempPath = path;
-			tempPath = tempPath.concat(Integer.toString(i+1));
-			tempPath = tempPath.concat(type);
-			try 
-			{
-				IndexDocument(writer, tempPath);
-			}
-			catch (Exception e){
-				e.printStackTrace();
-			}
-		}
 	}
 }

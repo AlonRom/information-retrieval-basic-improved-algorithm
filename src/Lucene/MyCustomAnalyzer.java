@@ -1,15 +1,12 @@
 package Lucene;
 
 import org.apache.lucene.analysis.*;
-import org.apache.lucene.analysis.core.FlattenGraphFilter;
 import org.apache.lucene.analysis.en.PorterStemFilter;
 import org.apache.lucene.analysis.standard.StandardFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
-import org.apache.lucene.analysis.synonym.SynonymFilter;
 import org.apache.lucene.analysis.synonym.SynonymGraphFilter;
 import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.util.PagedBytes;
 
 public class MyCustomAnalyzer extends Analyzer {
     SynonymMap map;
@@ -25,8 +22,6 @@ public class MyCustomAnalyzer extends Analyzer {
         this.stopWordSet = stopWordSet;
         this.pharesSet = pharesSet;
     }
-
-
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {

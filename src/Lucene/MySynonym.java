@@ -1,6 +1,5 @@
 package Lucene;
 
-import org.apache.lucene.analysis.CharArrayMap;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.util.CharsRef;
@@ -78,7 +77,7 @@ public class MySynonym {
     }
 
     private void DefaultPhrase(){
-        AddPhrase("united states");
+        //AddPhrase("united states");
 //        AddPhrase("kennedy administration");
         //AddPhrase("president diem");
         //AddPhrase("ngo dinh diem");

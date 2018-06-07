@@ -13,114 +13,117 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-
-
-public class TextFileReader {
-	
-	public static List<String> ReadFileParametres(String inputFile) 
+public class TextFileReader 
+{
+	public static List<String> ReadFileParametres(String inputFile) throws IOException 
 	{
 		List<String> lines = null;
 		List<String> parameters = new ArrayList<>();
 		try 
 		{
 			lines = Files.readAllLines(Paths.get(inputFile));
+			
+			//get parameters values
+	        for (String line : lines) 
+	        {
+	        	parameters.add(line.split("=")[1]);	      
+	        }
+	        return parameters;
 		} 
-		catch (IOException e) 
+		catch (ArrayIndexOutOfBoundsException e) 
 		{
 			e.printStackTrace();
-		}
-		
-		//get parameters values
-        for (String line : lines) 
-        {
-        	parameters.add(line.split("=")[1]);	      
-        }
-
-        return parameters;
-	}
-	
-	public static Map<Integer, String> ReadFileQueries(String inputFile, List<String> stopWords) 
-	{
-		String content = null;
-		Map<Integer, String> queries = new HashMap<Integer, String>();
-		try 
-		{
-			content = new String(Files.readAllBytes(Paths.get(inputFile)));
+			throw e;
 		}
 		catch (IOException e) 
 		{
 			e.printStackTrace();
-		}
-	
-		String[] parts = content.split("\\*");
-		for (String part : parts) 
-		{	if (part.equals(""))
-				continue;
-			//get query Id
-			Integer queryId = GetNumberFromString(part);
-			
-			//retrieve terms for a query
-			String queryTerms = GetTextTerms(part, stopWords);
-			
-		    System.out.println("Query Id " + queryId + " original query: " + part); 
-			
-			if(queryId > 0)
-			{
-				System.out.println("Query Id " + queryId + " after removing stop words, hyphenated,.. query: " + queryTerms); 
-				queries.put(queryId, queryTerms);
-			}
-		}
-		return queries;		
+			throw e;
+		}		
 	}
-
-	public static int SplitDocuments(String inputFile,String outPath)
+	
+	public static int SplitDocuments(String inputFile,String outPath) throws Exception
 	{
-		String content = null;
 		try
 		{
-			content = new String(Files.readAllBytes(Paths.get(inputFile)));
+			String content = null;	
+		    content = new String(Files.readAllBytes(Paths.get(inputFile)));	
+			String[] parts = content.split("\\*TEXT");
+			String outPathID=null;
+			new File(outPath).mkdirs();
+			for (String part : parts)
+			{			
+				if (part.equals(""))
+					continue;
+	
+				//get doc Id
+				Matcher matcher = Pattern.compile("\\d+").matcher(part);
+				matcher.find();
+				Integer docId = Integer.valueOf(matcher.group());
+				outPathID=outPath.concat(Integer.toString(docId));
+				outPathID=outPathID.concat(Constants.PARSED_DOCS_FILE_TYPE);
+	
+				//save the rest of the content to file
+				try 
+				{
+					File file = new File(outPathID);
+					file.createNewFile();
+					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outPathID));
+					
+					/*Improved 1 - clean document punctuation and lower case all terms */				
+					//retrieve terms for a document
+					part = GetTextTerms(part, null);
+					fileWriter.write(part);
+					fileWriter.close();
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+					throw e;
+				}
+			}
+			return parts.length-1;
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
-		}
-
-		String[] parts = content.split("\\*TEXT");
-		String outPathID=null;
-		new File(outPath).mkdirs();
-		for (String part : parts)
-		{			
-			if (part.equals(""))
-				continue;
-
-			//get doc Id
-			Matcher matcher = Pattern.compile("\\d+").matcher(part);
-			matcher.find();
-			Integer docId = Integer.valueOf(matcher.group());
-			outPathID=outPath.concat(Integer.toString(docId));
-			outPathID=outPathID.concat(Constants.PARSED_DOCS_FILE_TYPE);
-
-			//save the rest of the content to file
-			try {
-				File file = new File(outPathID);
-				file.createNewFile();
-				BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outPathID));
+			throw e;
+		}	
+	}
+	
+	public static Map<Integer, String> ReadFileQueries(String inputFile, List<String> stopWords) throws Exception 
+	{
+		try 
+		{
+			String content = null;
+			Map<Integer, String> queries = new HashMap<Integer, String>();	
+		    content = new String(Files.readAllBytes(Paths.get(inputFile)));			
+			String[] parts = content.split("\\*");
+			for (String part : parts) 
+			{	
+				if (part.equals(""))
+					continue;
+				//get query Id
+				Integer queryId = GetNumberFromString(part);
 				
-				/*Improved 1 - clean document punctuation and lower case all terms */				
-				//retrieve terms for a document
-				part = GetTextTerms(part, null);
+				//retrieve terms for a query
+				String queryTerms = GetTextTerms(part, stopWords);
 				
-				fileWriter.write(part);
-				fileWriter.close();
-			}
-			catch (Exception e){
-				e.printStackTrace();
-			}
+			    System.out.println("Query Id " + queryId + " original query: " + part); 
 
+				if(queryId > 0)
+				{
+					System.out.println("Query Id " + queryId + " after removing stop words, hyphenated,.. query: " + queryTerms); 
+					queries.put(queryId, queryTerms);
+				}
+			}
+			return queries;		
 		}
-		return parts.length-1;
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw e;
+		}	
 	}
 
 	private static Integer GetNumberFromString(String str) 
