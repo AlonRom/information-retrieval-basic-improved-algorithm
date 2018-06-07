@@ -128,6 +128,7 @@ public class LuceneHelper
 						sortedDocs.add(hit.doc+1);
 						i++;
 					}
+					//improvement if all the result below threshold - return top 2 result!
 					else if(i<2){
 						if (i==0) {
 							sortedDocs.add(hits[0].doc + 1);
