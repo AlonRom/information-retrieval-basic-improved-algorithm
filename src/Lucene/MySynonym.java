@@ -62,6 +62,7 @@ public class MySynonym {
         AddSynonym("west germany","westgermany",saveOriginal);
         AddSynonym("president_diem","ngodinhdiem",saveOriginal);
         AddSynonym("west_germany","westgermany",saveOriginal);
+        //AddSynonym("troops","military_strength",saveOriginal);
     }
 
     public void AddPhrase(String phrase){
@@ -84,6 +85,7 @@ public class MySynonym {
          //AddPhrase("united nations");
          AddPhrase("viet nam");
 //        AddPhrase("west germany");
+        //AddPhrase("MILITARY STRENGTH".toLowerCase());
 
     }
 

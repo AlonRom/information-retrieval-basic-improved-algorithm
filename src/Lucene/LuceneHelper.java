@@ -119,14 +119,21 @@ public class LuceneHelper
 				sortedDocs.clear();
 				for (ScoreDoc hit: hits)
 				{
-					if (i==Constants.MAX_RESULT || hit.score < Constants.SCORE_THRESHOLD)
+					if (i==Constants.MAX_RESULT || (hit.score < Constants.SCORE_THRESHOLD && i>0))
 					{
 						break;
 					}
-					if (hit.score >= Constants.SCORE_THRESHOLD)
+					else if (hit.score >= Constants.SCORE_THRESHOLD)
 					{
 						sortedDocs.add(hit.doc+1);
 						i++;
+					}
+					else if(i<2){
+						if (i==0) {
+							sortedDocs.add(hits[0].doc + 1);
+						}
+						sortedDocs.add(hits[1].doc+1);
+						break;
 					}
 				}
 				
