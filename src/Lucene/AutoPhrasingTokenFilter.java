@@ -272,10 +272,6 @@ public class AutoPhrasingTokenFilter extends TokenFilter {
         return null;
     }
 
-    private boolean isPhrase( char[] phrase ) {
-        return phraseMap != null && phraseMap.containsKey(phrase, 0, phrase.length);
-    }
-
     private boolean startsWith( char[] buffer, char[] phrase ) {
         if (phrase.length > buffer.length) return false;
         for (int i = 0; i < phrase.length; i++){
@@ -407,8 +403,8 @@ public class AutoPhrasingTokenFilter extends TokenFilter {
     }
 
 
-    private CharArrayMap convertPhraseSet( CharArraySet phraseSet ) {
-        CharArrayMap<CharArraySet> phraseMap = new CharArrayMap( 100, false);
+    private CharArrayMap<CharArraySet> convertPhraseSet( CharArraySet phraseSet ) {
+        CharArrayMap<CharArraySet> phraseMap = new CharArrayMap<CharArraySet>( 100, false);
         Iterator<Object> phraseIt = phraseSet.iterator( );
         while (phraseIt != null && phraseIt.hasNext() ) {
             char[] phrase = (char[])phraseIt.next();

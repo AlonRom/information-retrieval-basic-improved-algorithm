@@ -5,48 +5,54 @@ import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.util.CharsRef;
 import java.io.IOException;
 
+public class CustomSynonym 
+{
+    private SynonymMap.Builder builder;
+    private SynonymMap map ;
+    private CharArraySet phrasesSet;
 
-public class MySynonym {
-    SynonymMap.Builder builder;
-    SynonymMap map ;
-    CharArraySet phrasesSet;
-
-    public MySynonym(){
-
+    public CustomSynonym()
+    {
        builder = new SynonymMap.Builder(true);
        map=null;
-        phrasesSet=new CharArraySet(1000,true);
+       phrasesSet=new CharArraySet(1000,true);
     }
 
-    public void AddSynonym(String term, String syn, boolean includeOrignal){
-        term.replaceAll(" ","\u0000");
-        syn.replaceAll(" ","\0");
+    public void AddSynonym(String term, String syn, boolean includeOrignal)
+    {
         builder.add(new CharsRef(term),new CharsRef(syn),includeOrignal);
     }
 
-    public SynonymMap getMyMap(){
+    public SynonymMap getMap()
+    {
         return map;
     }
 
-    public void BuildMyMap(){
-        try{
+    public void BuildMyMap()
+    {
+        try
+        {
             map = builder.build();
         }
-        catch (IOException e){
+        catch (IOException e)
+        {
             e.printStackTrace();
         }
     }
 
 
-    public void UseDefaultSynonyms(){
+    public void UseDefaultSynonyms()
+    {
         DefaultSynonym(true);
     }
 
-    public void UseDefaultSynonyms(boolean saveOriginal){
+    public void UseDefaultSynonyms(boolean saveOriginal)
+    {
         DefaultSynonym(saveOriginal);
     }
 
-    private void DefaultSynonym(boolean saveOriginal){
+    private void DefaultSynonym(boolean saveOriginal)
+    {
         AddSynonym("united state america","usa",saveOriginal);
         AddSynonym("u.s","usa",saveOriginal);
         AddSynonym("u.s.","usa",saveOriginal);
@@ -64,28 +70,31 @@ public class MySynonym {
         //AddSynonym("troops","military_strength",saveOriginal);
     }
 
-    public void AddPhrase(String phrase){
+    public void AddPhrase(String phrase)
+    {
         phrasesSet.add(phrase.toCharArray());
     }
 
-    public void UseDefaultPhrases(){
+    public void UseDefaultPhrases()
+    {
         DefaultPhrase();
     }
 
-    public CharArraySet getPhrasesSet(){
+    public CharArraySet getPhrasesSet()
+    {
         return phrasesSet;
     }
 
-    private void DefaultPhrase(){
+    private void DefaultPhrase()
+    {
         AddPhrase("united states");
-//        AddPhrase("kennedy administration");
+        //AddPhrase("kennedy administration");
         //AddPhrase("president diem");
         //AddPhrase("ngo dinh diem");
-         //AddPhrase("united nations");
+        //AddPhrase("united nations");
          AddPhrase("viet nam");
-//        AddPhrase("west germany");
+        //AddPhrase("west germany");
         //AddPhrase("MILITARY STRENGTH".toLowerCase());
-
     }
 
 

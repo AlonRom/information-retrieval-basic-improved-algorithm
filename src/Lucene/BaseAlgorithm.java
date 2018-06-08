@@ -17,5 +17,6 @@ public class BaseAlgorithm
 	protected int _numberOfDocs;
 	protected ClassicSimilarity _similarity;
 	protected Map<Integer, String> _queries;
+	protected int _minimumRetrievedDocumentsForQuery;
 	protected Map<Integer, Integer[]> _searchQueriesResult;
 }

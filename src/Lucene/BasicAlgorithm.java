@@ -1,10 +1,8 @@
 package Lucene;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.apache.lucene.analysis.CharArraySet;
+
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -15,11 +13,14 @@ import org.apache.lucene.store.FSDirectory;
 
 public class BasicAlgorithm extends BaseAlgorithm
 {
+	Analyzer _documentsStandardAnalyzer;
+		
 	public BasicAlgorithm(String docsFilePath, String queryFilePath, String outputFilePath)
 	{
 		_docsFilePath = docsFilePath;
 		_queryFilePath = queryFilePath;
 		_outputFilePath	= outputFilePath;
+		_minimumRetrievedDocumentsForQuery = 0;
 	}
 	
 	public void Execute() 
@@ -51,21 +52,20 @@ public class BasicAlgorithm extends BaseAlgorithm
 	    try 
 	    {
 			//indexes each document separately
-			StandardAnalyzer documentsStandardAnalyzer = new StandardAnalyzer(_stopWordsSet);
+			_documentsStandardAnalyzer = new StandardAnalyzer(_stopWordsSet);
 			
 			//create a default Similarity
 		    _similarity = new ClassicSimilarity();
 			
 			Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
-			IndexWriterConfig documentsConfig = new IndexWriterConfig(documentsStandardAnalyzer);
+			IndexWriterConfig documentsConfig = new IndexWriterConfig(_documentsStandardAnalyzer);
 			documentsConfig.setOpenMode(OpenMode.CREATE);
 			documentsConfig.setSimilarity(_similarity);
 			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
 			
 			LuceneHelper.IndexSplittedDocuments(documentsWriter, Constants.PARSED_DOCS_PATH, Constants.PARSED_DOCS_FILE_TYPE, _numberOfDocs);
 		
-			documentsWriter.close();
-	    	
+			documentsWriter.close();    	
 	    }
 	    catch (Exception e) 
 	    {
@@ -89,7 +89,7 @@ public class BasicAlgorithm extends BaseAlgorithm
 	    try
 	    {
 	    	//search queries
-	    	_searchQueriesResult = LuceneHelper.SearchIndexForQueries(_queries, _stopWordsSet, _outputFilePath, _similarity);
+	    	_searchQueriesResult = LuceneHelper.SearchIndexForQueries(_queries, _stopWordsSet, _outputFilePath, _documentsStandardAnalyzer, _similarity, _minimumRetrievedDocumentsForQuery);
 	    }
 	    catch (Exception e) 
 	    {

@@ -8,16 +8,16 @@ import org.apache.lucene.analysis.synonym.SynonymGraphFilter;
 import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.index.IndexReader;
 
-public class MyCustomAnalyzer extends Analyzer {
+public class CustomAnalyzer extends Analyzer {
     SynonymMap map;
     IndexReader reader;
     CharArraySet stopWordSet=null;
     CharArraySet pharesSet=null;
-    public MyCustomAnalyzer(SynonymMap map){
+    public CustomAnalyzer(SynonymMap map){
         this.map = map;
     }
 
-    public MyCustomAnalyzer(SynonymMap map, CharArraySet stopWordSet,CharArraySet pharesSet){
+    public CustomAnalyzer(SynonymMap map, CharArraySet stopWordSet,CharArraySet pharesSet){
         this.map = map;
         this.stopWordSet = stopWordSet;
         this.pharesSet = pharesSet;

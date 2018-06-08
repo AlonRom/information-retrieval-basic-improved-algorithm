@@ -1,11 +1,7 @@
 package Lucene;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.synonym.SynonymMap;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -16,11 +12,14 @@ import org.apache.lucene.store.FSDirectory;
 
 public class ImprovedAlgorithm extends BaseAlgorithm
 {
+	Analyzer _customAnalyzer;
+	
 	public ImprovedAlgorithm(String docsFilePath, String queryFilePath, String outputFilePath)
 	{
 		_docsFilePath = docsFilePath;
 		_queryFilePath = queryFilePath;
 		_outputFilePath	= outputFilePath;
+		_minimumRetrievedDocumentsForQuery = 2;
 	}
 	
 	public void Execute() 
@@ -50,20 +49,15 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 		}
 	    
 	    try 
-	    {
-	    	MySynonym mySynonym = new MySynonym();
-			mySynonym.UseDefaultSynonyms();
-			mySynonym.BuildMyMap();
-			mySynonym.UseDefaultPhrases();
-			CharArraySet phrases = mySynonym.getPhrasesSet();
-			SynonymMap map = mySynonym.getMyMap();
-			MyCustomAnalyzer customAnalyzer = new MyCustomAnalyzer(map, _stopWordsSet, phrases);
+	    {	    	
+	    	CustomSynonym synonymMap = CreateSynonymMap();
+		    _customAnalyzer = new CustomAnalyzer(synonymMap.getMap(), _stopWordsSet, synonymMap.getPhrasesSet());
 
 			//create a default Similarity
 		    _similarity = new ClassicSimilarity();
 		    
 			Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
-			IndexWriterConfig documentsConfig = new IndexWriterConfig(customAnalyzer);
+			IndexWriterConfig documentsConfig = new IndexWriterConfig(_customAnalyzer);
 			documentsConfig.setOpenMode(OpenMode.CREATE);
 			documentsConfig.setSimilarity(_similarity);
 
@@ -94,7 +88,7 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 	    try
 	    {
 	    	//search queries
-	    	_searchQueriesResult = LuceneHelper.SearchIndexForQueries(_queries, _stopWordsSet, _outputFilePath, _similarity);
+	    	_searchQueriesResult = LuceneHelper.SearchIndexForQueries(_queries, _stopWordsSet, _outputFilePath, _customAnalyzer, _similarity, _minimumRetrievedDocumentsForQuery);
 	    }
 	    catch (Exception e) 
 	    {
@@ -119,5 +113,14 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 	       System.out.println("Exiting Retrieval Experiment...");
 		   System.exit(1);
 		}		    
+	}
+
+	private CustomSynonym CreateSynonymMap() 
+	{
+		CustomSynonym synonym = new CustomSynonym();
+		synonym.UseDefaultSynonyms();
+		synonym.BuildMyMap();
+		synonym.UseDefaultPhrases();
+		return synonym;
 	}
 }

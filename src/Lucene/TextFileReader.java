@@ -42,7 +42,7 @@ public class TextFileReader
 		}		
 	}
 	
-	public static int SplitDocuments(String inputFile,String outPath) throws Exception
+	public static int SplitDocuments(String inputFile, String outPath) throws Exception
 	{
 		try
 		{
@@ -71,7 +71,7 @@ public class TextFileReader
 					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outPathID));
 									
 					//retrieve terms for a document
-					part = GetTextTerms(part, null);
+					part = GetTextTerms(part);
 					fileWriter.write(part);
 					fileWriter.close();
 				}
@@ -106,13 +106,12 @@ public class TextFileReader
 				Integer queryId = GetNumberFromString(part);
 				
 				//retrieve terms for a query
-				String queryTerms = GetTextTerms(part, stopWords);
+				String queryTerms = GetTextTerms(part);
 				
-			    System.out.println("Query Id " + queryId + " original query: " + part); 
-
 				if(queryId > 0)
 				{
-					System.out.println("Query Id " + queryId + " after removing stop words, hyphenated,.. query: " + queryTerms); 
+				    System.out.println("Query Id " + queryId + " original query: " + part); 
+					System.out.println("Query Id " + queryId + " after parsing query: " + queryTerms); 
 					queries.put(queryId, queryTerms);
 				}
 			}
@@ -132,7 +131,7 @@ public class TextFileReader
 		return Integer.valueOf(matcher.group());
 	}
 	
-	private static String GetTextTerms(String str, List<String> stopWords) 
+	private static String GetTextTerms(String str) 
 	{
 		List<String> listOfTerms = new ArrayList<String>(); 
 		//split string in order to take the query lines 
@@ -143,9 +142,8 @@ public class TextFileReader
 			//the query can have more then 1 line so we need to iterate each line 
 			for(int i=1; i < splitStr.length; i++)
 			{
-				//removes all non-letter characters, then splits the input, Spaces are initially left in the input 
+				//removes spaces 
 				String[] wordsInLine = splitStr[i].split("\\s+");
-				//String[] wordsInLine = splitStr[i].replaceAll("\\d","").split("\\s+");
 				//take each word in the line and add it only if it's not a stop word
 				for (String word : wordsInLine)
 				{
@@ -156,14 +154,4 @@ public class TextFileReader
 		
 		return String.join(" ", listOfTerms);
 	}
-
-	private static boolean IfNotStopWord(String word, List<String> stopWords) 
-	{
-		for(String str: stopWords) {
-		    if(str.trim().toLowerCase().contains(word))
-		       return false;
-		}
-		return true;
-	}
-
 }

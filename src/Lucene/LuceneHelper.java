@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
@@ -144,7 +144,7 @@ public class LuceneHelper
 	    return stemmer.stem(term);
 	}
 
-	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath,ClassicSimilarity similarity) throws Exception
+	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath, Analyzer analyzer, ClassicSimilarity similarity, int minimumRetrievedDocumentsForQuery) throws Exception
 	{  
 	    try 
 	    {
@@ -155,8 +155,8 @@ public class LuceneHelper
 			for (Map.Entry<Integer, String> entry : queries.entrySet())
 			{
 		    	System.out.println("Search for query " + entry.getKey() + ": " + entry.getValue());
-				ScoreDoc[] hits=SearchQuery(entry.getValue(),stopWordSet,similarity);
-				Integer matchID[]=new Integer[Constants.MAX_RESULT];
+				ScoreDoc[] hits = SearchQuery(entry.getValue(), stopWordSet, analyzer, similarity);
+				Integer matchID[] = new Integer[Constants.MAX_RESULT];
 				
 				//filter document by score threshold
 				int i=0;
@@ -171,19 +171,19 @@ public class LuceneHelper
 					{
 						sortedDocs.add(hit.doc+1);
 						i++;
-					}
-					//improvement if all the result below threshold - return top 2 result!
-					else if(i<2)
+					}		
+				}
+
+				//improvement if all the result below threshold - return top 2 result!
+				if(sortedDocs.size() == 0 && hits.length != 0)
+				{
+					for (Integer j=0; j<minimumRetrievedDocumentsForQuery; j++)
 					{
-						if (i==0) 
-						{
-							sortedDocs.add(hits[0].doc + 1);
-						}
-						sortedDocs.add(hits[1].doc+1);
-						break;
+						if(hits[j] != null)
+							sortedDocs.add(hits[j].doc + 1);
 					}
 				}
-				
+											
 				//sort filtered documents into ascending order and prepare for output print
 				i=0;
 		        Collections.sort(sortedDocs); 
@@ -222,24 +222,15 @@ public class LuceneHelper
 		writer.close();
 	}
 
-	public static ScoreDoc[] SearchQuery(String searchQuery, CharArraySet stopWordSet, ClassicSimilarity similarity) throws IOException, ParseException
-	{
+	public static ScoreDoc[] SearchQuery(String searchQuery, CharArraySet stopWordSet, Analyzer analyzer, ClassicSimilarity similarity) throws IOException, ParseException
+	{		
 		IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH)));
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-		MySynonym syn = new MySynonym();
-		syn.UseDefaultSynonyms();
-		syn.BuildMyMap();
-		SynonymMap map = syn.getMyMap();
-		syn.UseDefaultPhrases();
-		CharArraySet phrases = syn.getPhrasesSet();
-		MyCustomAnalyzer ana=new MyCustomAnalyzer(map,stopWordSet,phrases);
-
-		QueryParser queryParser = new QueryParser(Constants.CONTENT, ana);
+		QueryParser queryParser = new QueryParser(Constants.CONTENT, analyzer);
 		Query query = queryParser.parse(searchQuery);
 		indexSearcher.setSimilarity(similarity);
-		TopDocs results = indexSearcher.search(query, 1000);
-		ScoreDoc[] hits = results.scoreDocs;
-		
+		TopDocs results = indexSearcher.search(query, Constants.MAX_RERTIEVED_DOCUMENTS_LIMIT);
+		ScoreDoc[] hits = results.scoreDocs;		
 		int numTotalHits = Math.toIntExact(results.totalHits);
 		System.out.println(numTotalHits + " total matching documents");
 		return hits;
