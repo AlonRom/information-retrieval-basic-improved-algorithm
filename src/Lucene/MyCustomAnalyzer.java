@@ -29,20 +29,13 @@ public class MyCustomAnalyzer extends Analyzer {
         TokenStream filter = new StandardFilter(source);
         filter = new LowerCaseFilter(filter);
         if (pharesSet!=null)
-            filter = new AutoPhrasingTokenFilter(filter,pharesSet,false);
+            filter = new AutoPhrasingTokenFilter(filter, pharesSet, true);
         if (map!=null)
-            filter = new SynonymGraphFilter(filter,map,false);
+            filter = new SynonymGraphFilter(filter, map, true);
         if (stopWordSet!=null)
-            filter = new StopFilter(filter,stopWordSet);
-        filter = new PorterStemFilter(filter);
+            filter = new StopFilter(filter, stopWordSet);
+        
+        //filter = new PorterStemFilter(filter);
         return new TokenStreamComponents(source, filter);
     }
-
-//    protected TokenStreamComponents createComponents(String fieldName, IndexReader reader) {
-//        Tokenizer source = new StandardTokenizer();
-//        TokenStream filter = new StandardFilter(source);
-//        filter = new LowerCaseFilter(filter);
-//        filter = new FlattenGraphFilter(filter);
-//        return new TokenStreamComponents(source, filter);
-//    }
 }

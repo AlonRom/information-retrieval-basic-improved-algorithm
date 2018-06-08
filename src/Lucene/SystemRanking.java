@@ -189,11 +189,11 @@ public class SystemRanking
         float[] fs = getFScore(Constants.FSCORE_BETA);
 
         //print the average precision and recall
-        System.out.println("The precision: "+ precision[2]);
-        System.out.println("The recall: "+ recall[2]);
+        //System.out.println("The precision: "+ precision[2]);
+        //System.out.println("The recall: "+ recall[2]);
         System.out.println("The average precision: "+ average(precision));
         System.out.println("The average recall: "+ average(recall));
-        System.out.println("The average 1f-score: "+ average(fs));
+        System.out.println("The average f-score: "+ average(fs));
     }
 
     private float[] fScore(double beta) 
@@ -209,8 +209,10 @@ public class SystemRanking
                 fs[i]=0;
                 continue;
             }
-            fs[i] =  (((float)(1+Math.pow(beta,2.0))*(precision[i]*recall[i]))/(float)((Math.pow(beta,2.0)*precision[i])+recall[i]));
+            fs[i] =  ( ((float)(1+Math.pow(beta,2.0))*(precision[i]*recall[i])) /
+            		   (float)((Math.pow(beta,2.0)*precision[i])+recall[i]) );
         }
+     
         return fs;
     }
 }

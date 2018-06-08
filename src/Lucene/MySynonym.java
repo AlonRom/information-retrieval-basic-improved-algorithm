@@ -77,7 +77,7 @@ public class MySynonym {
     }
 
     private void DefaultPhrase(){
-        //AddPhrase("united states");
+        AddPhrase("united states");
 //        AddPhrase("kennedy administration");
         //AddPhrase("president diem");
         //AddPhrase("ngo dinh diem");

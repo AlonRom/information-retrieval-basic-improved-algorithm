@@ -57,21 +57,20 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 			mySynonym.UseDefaultPhrases();
 			CharArraySet phrases = mySynonym.getPhrasesSet();
 			SynonymMap map = mySynonym.getMyMap();
-			MyCustomAnalyzer ana = new MyCustomAnalyzer(map,_stopWordsSet,phrases);
+			MyCustomAnalyzer customAnalyzer = new MyCustomAnalyzer(map, _stopWordsSet, phrases);
 
 			//create a default Similarity
 		    _similarity = new ClassicSimilarity();
 		    
 			Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
-			IndexWriterConfig documentsConfig = new IndexWriterConfig(ana);
+			IndexWriterConfig documentsConfig = new IndexWriterConfig(customAnalyzer);
 			documentsConfig.setOpenMode(OpenMode.CREATE);
 			documentsConfig.setSimilarity(_similarity);
 
 			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
 			LuceneHelper.IndexSplittedDocuments(documentsWriter, Constants.PARSED_DOCS_PATH, Constants.PARSED_DOCS_FILE_TYPE, _numberOfDocs);
 		
-			documentsWriter.close();
-	    	
+			documentsWriter.close();	    	
 	    }
 	    catch (Exception e) 
 	    {
