@@ -69,8 +69,7 @@ public class TextFileReader
 					File file = new File(outPathID);
 					file.createNewFile();
 					BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outPathID));
-					
-					/*Improved 1 - clean document punctuation and lower case all terms */				
+									
 					//retrieve terms for a document
 					part = GetTextTerms(part, null);
 					fileWriter.write(part);
@@ -144,18 +143,13 @@ public class TextFileReader
 			//the query can have more then 1 line so we need to iterate each line 
 			for(int i=1; i < splitStr.length; i++)
 			{
-				//removes all non-letter characters, folds to lower case, then splits the input, Spaces are initially left in the input 
-				//String[] wordsInLine = splitStr[i].replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
+				//removes all non-letter characters, then splits the input, Spaces are initially left in the input 
 				String[] wordsInLine = splitStr[i].split("\\s+");
+				//String[] wordsInLine = splitStr[i].replaceAll("\\d","").split("\\s+");
 				//take each word in the line and add it only if it's not a stop word
 				for (String word : wordsInLine)
 				{
-				   if(stopWords == null || IfNotStopWord(word, stopWords))
-				   {
-					   /*Improved 2 - Stemming document */
-					   //word = LuceneHelper.StemTerm(word);
-					   listOfTerms.add(word);					   
-				   }
+				   listOfTerms.add(word);	
 				}	
 			}	
 		}
