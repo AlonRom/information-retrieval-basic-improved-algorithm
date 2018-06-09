@@ -19,10 +19,18 @@ public class RetrievalExperiment
 
 	public static void main(String[] args) throws IOException, ParseException 
 	{
+		if(args.length < 1)
+		{
+			System.out.println("Parameters file argument is missing!");
+			System.out.println("Exiting Retrieval Experiment...");
+			System.exit(1);
+		}
+
 		//get parameters file data
 		try
 		{
-			_inputFilePath = "./files/parameters.txt";
+			System.out.println("Parameters file path:..." + args[0]);
+			_inputFilePath = args[0];
 			_inputParameters = TextFileReader.ReadFileParametres(_inputFilePath);		
 			_queryFilePath = _inputParameters.get(0);
 			_docsFilePath = _inputParameters.get(1);
