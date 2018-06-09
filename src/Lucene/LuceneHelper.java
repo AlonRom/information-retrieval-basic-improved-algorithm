@@ -177,7 +177,7 @@ public class LuceneHelper
 				//improvement if all the result below threshold - return top 2 result!
 				if(sortedDocs.size() == 0 && hits.length != 0)
 				{
-					for (Integer j=0; j<minimumRetrievedDocumentsForQuery; j++)
+					for (Integer j=0; j < hits.length && j<minimumRetrievedDocumentsForQuery; j++)
 					{
 						if(hits[j] != null)
 							sortedDocs.add(hits[j].doc + 1);

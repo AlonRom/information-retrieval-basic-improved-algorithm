@@ -19,7 +19,7 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 		_docsFilePath = docsFilePath;
 		_queryFilePath = queryFilePath;
 		_outputFilePath	= outputFilePath;
-		_minimumRetrievedDocumentsForQuery = 0;
+		_minimumRetrievedDocumentsForQuery = 2;
 	}
 	
 	public void Execute() 
@@ -55,7 +55,7 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 
 			//create a default Similarity
 		    _similarity = new ClassicSimilarity();
-		    
+
 			Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
 			IndexWriterConfig documentsConfig = new IndexWriterConfig(_customAnalyzer);
 			documentsConfig.setOpenMode(OpenMode.CREATE);
