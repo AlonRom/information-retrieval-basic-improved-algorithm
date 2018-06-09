@@ -53,21 +53,23 @@ public class CustomSynonym
 
     private void DefaultSynonym(boolean saveOriginal)
     {
-        AddSynonym("united state america","usa",saveOriginal);
+        //AddSynonym("united state america","usa",saveOriginal);
         AddSynonym("u.s","usa",saveOriginal);
         AddSynonym("u.s.","usa",saveOriginal);
-        AddSynonym("united_states","usa",saveOriginal);
-        AddSynonym("kennedy_administration","kennedyadministration",saveOriginal);
-        AddSynonym("u.n","unitednations",saveOriginal);
-        AddSynonym("united_nations","unitednations",saveOriginal);
-        AddSynonym("viet_nam","vietnam",saveOriginal);
-        AddSynonym("ngo_dinh_diem","ngodinhdiem",saveOriginal);
-        AddSynonym("president_diem","ngodinhdiem",saveOriginal);
-        AddSynonym("diem","ngodinhdiem",saveOriginal);
-        AddSynonym("west germany","westgermany",saveOriginal);
-        AddSynonym("president_diem","ngodinhdiem",saveOriginal);
-        AddSynonym("west_germany","westgermany",saveOriginal);
-        //AddSynonym("troops","military_strength",saveOriginal);
+        AddSynonym("united states","usa",saveOriginal);
+        //AddSynonym("kennedy_administration","kennedyadministration",saveOriginal);
+ //       AddSynonym("u.n","united_nations",saveOriginal);
+ //       AddSynonym("u.n.","united_nations",saveOriginal);
+//        AddSynonym("united_nations","unitednations",saveOriginal);
+        AddSynonym("viet nam","vietnam",saveOriginal);
+        //AddSynonym("ngo dinh diem","ngodinhdiem",saveOriginal);
+        //AddSynonym("president diem","ngodinhdiem",saveOriginal);
+        //AddSynonym("diem","ngodinhdiem",saveOriginal);
+//        AddSynonym("west germany","westgermany",saveOriginal);
+//        AddSynonym("president_diem","ngodinhdiem",saveOriginal);
+//        AddSynonym("west_germany","westgermany",saveOriginal);
+        //AddSynonym("troops","military strength",saveOriginal);
+        //AddSynonym("troops","strength",saveOriginal);
     }
 
     public void AddPhrase(String phrase)
@@ -75,10 +77,7 @@ public class CustomSynonym
         phrasesSet.add(phrase.toCharArray());
     }
 
-    public void UseDefaultPhrases()
-    {
-        DefaultPhrase();
-    }
+    public void UseDefaultPhrases() { DefaultPhrase(); }
 
     public CharArraySet getPhrasesSet()
     {

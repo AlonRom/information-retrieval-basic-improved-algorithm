@@ -19,7 +19,7 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 		_docsFilePath = docsFilePath;
 		_queryFilePath = queryFilePath;
 		_outputFilePath	= outputFilePath;
-		_minimumRetrievedDocumentsForQuery = 2;
+		_minimumRetrievedDocumentsForQuery = 0;
 	}
 	
 	public void Execute() 
@@ -51,7 +51,7 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 	    try 
 	    {	    	
 	    	CustomSynonym synonymMap = CreateSynonymMap();
-		    _customAnalyzer = new CustomAnalyzer(synonymMap.getMap(), _stopWordsSet, synonymMap.getPhrasesSet());
+		    _customAnalyzer = new CustomAnalyzer(synonymMap.getMap(), _stopWordsSet, synonymMap.getPhrasesSet(),true);
 
 			//create a default Similarity
 		    _similarity = new ClassicSimilarity();
