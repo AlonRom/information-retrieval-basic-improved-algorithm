@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -35,7 +34,6 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
-import static Lucene.RetrievalExperiment._retrievalAlgorithmMode;
 
 public class LuceneHelper 
 {
@@ -145,7 +143,9 @@ public class LuceneHelper
 	    return stemmer.stem(term);
 	}
 
-	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, String outputFilePath, Analyzer analyzer, ClassicSimilarity similarity, int minimumRetrievedDocumentsForQuery) throws Exception
+	public static Map<Integer, Integer[]> SearchIndexForQueries(Map<Integer, String> queries, CharArraySet stopWordSet, 
+																String outputFilePath, Analyzer analyzer, ClassicSimilarity similarity,
+																int minimumRetrievedDocumentsForQuery, double threshold) throws Exception
 	{  
 	    try 
 	    {
@@ -164,11 +164,11 @@ public class LuceneHelper
 				sortedDocs.clear();
 				for (ScoreDoc hit: hits)
 				{
-					if (i==Constants.MAX_RESULT || (hit.score < Constants.SCORE_THRESHOLD && i>0))
+					if (i==Constants.MAX_RESULT || (hit.score < threshold && i>0))
 					{
 						break;
 					}
-					else if (hit.score >= Constants.SCORE_THRESHOLD)
+					else if (hit.score >= threshold)
 					{
 						sortedDocs.add(hit.doc+1);
 						i++;
@@ -229,8 +229,11 @@ public class LuceneHelper
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 		QueryParser queryParser = new QueryParser(Constants.CONTENT, analyzer);
 		Query query = queryParser.parse(searchQuery);
-		if (_retrievalAlgorithmMode=="basic")
-		 indexSearcher.setSimilarity(similarity);
+		
+		//if we are in the basic mode we want to use the classical similarity in order to get the best results
+		if (Constants.CURRENT_ALGORITHM_MODE ==	AlgorithmMode.BASIC)
+			indexSearcher.setSimilarity(similarity);
+		
 		TopDocs results = indexSearcher.search(query, Constants.MAX_RERTIEVED_DOCUMENTS_LIMIT);
 		ScoreDoc[] hits = results.scoreDocs;		
 		int numTotalHits = Math.toIntExact(results.totalHits);

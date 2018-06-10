@@ -88,7 +88,7 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 	    try
 	    {
 	    	//search queries
-	    	_searchQueriesResult = LuceneHelper.SearchIndexForQueries(_queries, _stopWordsSet, _outputFilePath, _customAnalyzer, _similarity, _minimumRetrievedDocumentsForQuery);
+	    	_searchQueriesResult = LuceneHelper.SearchIndexForQueries(_queries, _stopWordsSet, _outputFilePath, _customAnalyzer, _similarity, _minimumRetrievedDocumentsForQuery, Constants.IMPROVED_SCORE_THRESHOLD);
 	    }
 	    catch (Exception e) 
 	    {

@@ -60,11 +60,13 @@ public class RetrievalExperiment
 		switch (_retrievalAlgorithmMode.toLowerCase()) 
 		{
 			case Constants.BASIC_MODE:
+				Constants.CURRENT_ALGORITHM_MODE = AlgorithmMode.BASIC;
 				BasicAlgorithm basic = new BasicAlgorithm(_docsFilePath, _queryFilePath, _outputFilePath);
 				basic.Execute();
 				break;
 				
 			case Constants.IMPROVED_MODE:
+				Constants.CURRENT_ALGORITHM_MODE = AlgorithmMode.IMPROVED;
 				ImprovedAlgorithm improved = new ImprovedAlgorithm(_docsFilePath, _queryFilePath, _outputFilePath);
 				improved.Execute();
 				break;

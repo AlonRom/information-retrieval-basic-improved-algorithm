@@ -89,7 +89,7 @@ public class BasicAlgorithm extends BaseAlgorithm
 	    try
 	    {
 	    	//search queries
-	    	_searchQueriesResult = LuceneHelper.SearchIndexForQueries(_queries, _stopWordsSet, _outputFilePath, _documentsStandardAnalyzer, _similarity, _minimumRetrievedDocumentsForQuery);
+	    	_searchQueriesResult = LuceneHelper.SearchIndexForQueries(_queries, _stopWordsSet, _outputFilePath, _documentsStandardAnalyzer, _similarity, _minimumRetrievedDocumentsForQuery, Constants.BASIC_SCORE_THRESHOLD);
 	    }
 	    catch (Exception e) 
 	    {
