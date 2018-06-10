@@ -59,7 +59,7 @@ public class ImprovedAlgorithm extends BaseAlgorithm
 			Directory documentsIndexdirectory = FSDirectory.open(Paths.get(Constants.DOCUMENTS_INDEX_PATH));
 			IndexWriterConfig documentsConfig = new IndexWriterConfig(_customAnalyzer);
 			documentsConfig.setOpenMode(OpenMode.CREATE);
-			documentsConfig.setSimilarity(_similarity);
+			//documentsConfig.setSimilarity(_similarity);
 
 			IndexWriter documentsWriter = new IndexWriter(documentsIndexdirectory, documentsConfig);
 			LuceneHelper.IndexSplittedDocuments(documentsWriter, Constants.PARSED_DOCS_PATH, Constants.PARSED_DOCS_FILE_TYPE, _numberOfDocs);

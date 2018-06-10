@@ -32,7 +32,7 @@ public class CustomAnalyzer extends Analyzer {
         TokenStream filter = new StandardFilter(source);
         filter = new LowerCaseFilter(filter);
         if (pharesSet!=null)
-            //filter = new AutoPhrasingTokenFilter(filter, pharesSet, true);
+            filter = new AutoPhrasingTokenFilter(filter, pharesSet, true);
         if (map!=null)
         {
             filter = new SynonymGraphFilter(filter, map, true);
