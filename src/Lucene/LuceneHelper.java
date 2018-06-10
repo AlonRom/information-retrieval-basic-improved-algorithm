@@ -35,6 +35,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.Term;
+import static Lucene.RetrievalExperiment._retrievalAlgorithmMode;
 
 public class LuceneHelper 
 {
@@ -228,7 +229,8 @@ public class LuceneHelper
 		IndexSearcher indexSearcher = new IndexSearcher(indexReader);
 		QueryParser queryParser = new QueryParser(Constants.CONTENT, analyzer);
 		Query query = queryParser.parse(searchQuery);
-		indexSearcher.setSimilarity(similarity);
+		if (_retrievalAlgorithmMode=="basic")
+		 indexSearcher.setSimilarity(similarity);
 		TopDocs results = indexSearcher.search(query, Constants.MAX_RERTIEVED_DOCUMENTS_LIMIT);
 		ScoreDoc[] hits = results.scoreDocs;		
 		int numTotalHits = Math.toIntExact(results.totalHits);

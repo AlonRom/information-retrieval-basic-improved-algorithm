@@ -58,18 +58,18 @@ public class CustomSynonym
         AddSynonym("u.s.","usa",saveOriginal);
         AddSynonym("united states","usa",saveOriginal);
         //AddSynonym("kennedy_administration","kennedyadministration",saveOriginal);
- //       AddSynonym("u.n","united_nations",saveOriginal);
- //       AddSynonym("u.n.","united_nations",saveOriginal);
+        AddSynonym("u.n","united nations",saveOriginal);
+        AddSynonym("u.n.","united nations",saveOriginal);
 //        AddSynonym("united_nations","unitednations",saveOriginal);
         AddSynonym("viet nam","vietnam",saveOriginal);
         //AddSynonym("ngo dinh diem","ngodinhdiem",saveOriginal);
-        //AddSynonym("president diem","ngodinhdiem",saveOriginal);
-        //AddSynonym("diem","ngodinhdiem",saveOriginal);
+        AddSynonym("president diem","ngo dinh diem",saveOriginal);
+        AddSynonym("diem","ngo dinh diem",saveOriginal);
 //        AddSynonym("west germany","westgermany",saveOriginal);
-//        AddSynonym("president_diem","ngodinhdiem",saveOriginal);
+        //AddSynonym("president_diem","ngodinhdiem",saveOriginal);
 //        AddSynonym("west_germany","westgermany",saveOriginal);
-        //AddSynonym("troops","military strength",saveOriginal);
-        //AddSynonym("troops","strength",saveOriginal);
+        AddSynonym("troops","military strength",saveOriginal);
+
     }
 
     public void AddPhrase(String phrase)
@@ -88,12 +88,12 @@ public class CustomSynonym
     {
         AddPhrase("united states");
         //AddPhrase("kennedy administration");
-        //AddPhrase("president diem");
-        //AddPhrase("ngo dinh diem");
-        //AddPhrase("united nations");
+        AddPhrase("president diem");
+        AddPhrase("ngo dinh diem");
+        AddPhrase("united nations");
          AddPhrase("viet nam");
         //AddPhrase("west germany");
-        //AddPhrase("MILITARY STRENGTH".toLowerCase());
+        AddPhrase("MILITARY STRENGTH".toLowerCase());
     }
 
 
